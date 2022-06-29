@@ -1,13 +1,14 @@
 import tasks.Task;
 import tasks.Epic;
 import tasks.Subtask;
-import manager.SupportManager;
 import tasks.Status;
+import manager.Managers;
+import manager.TaskManager;
 
 public class Main {
     public static void main(String[] args) {
 
-        SupportManager manager = new SupportManager();
+        TaskManager manager = Managers.getDefault();
         Epic epic = new Epic("Первая большая задача!", "Первая задача!");
         Subtask st1 = new Subtask("Первая подзадача!", "Первая задача!", (String.valueOf(Status.IN_PROGRESS)), epic);
         Epic epic2 = new Epic("Вторая большая задача", "Вторая задача:)");
@@ -22,13 +23,13 @@ public class Main {
         manager.createSubTask(st3);
         manager.createTask(task1);
         manager.createTask(task2);
-        manager.updateSubTask(st1);
-        /*manager.removeAllSubTasks();*/
-        manager.removeTaskById(7);
+        /*manager.updateSubTask(st1);
+        *//*manager.removeAllSubTasks();*//*
+        manager.removeTaskById(7);*/
 
 
-        System.out.println(manager.getTasks());
-        System.out.println(manager.getEpics());
-        System.out.println(manager.getSubTasks());
+        System.out.println(manager.getTasksById(7));
+        System.out.println(manager.getEpicsById(1));
+        System.out.println(manager.getSubTasksById(2));
     }
 }

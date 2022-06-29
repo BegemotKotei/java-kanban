@@ -15,7 +15,7 @@ public interface TaskManager {
     void removeAllEpics();
     void removeAllSubTasks();
     Task getTasksById(int id);
-    Epic getEpicsId(int id);
+    Epic getEpicsById(int id);
     Subtask getSubTasksById(int id);
     Task createTask(Task task);
     void createEpic(Epic epic);
@@ -27,5 +27,6 @@ public interface TaskManager {
     void removeEpicById(int Id);
     void removeSubTaskById(int Id);
     int generateId();
+    List<Task> history();
 
 }

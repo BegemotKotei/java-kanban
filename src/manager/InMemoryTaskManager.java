@@ -7,17 +7,21 @@ import tasks.Status;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-public  class SupportManager implements TaskManager {
+import java.util.List;
+
+public  class InMemoryTaskManager implements TaskManager {
     private int id;
     private final HashMap<Integer, Task> tasks;
     private final HashMap<Integer, Epic> epics;
     private final HashMap<Integer, Subtask> subtasks;
+    private HistoryManager historyManager;
 
-    public SupportManager() {
+    public InMemoryTaskManager() {
         this.id = 0;
         this.tasks = new HashMap<>();
         this.epics = new HashMap<>();
         this.subtasks = new HashMap<>();
+        historyManager = Managers.getDefaulHistory();
     }
 
     @Override
@@ -67,13 +71,17 @@ public  class SupportManager implements TaskManager {
     }
 
     @Override
-    public Epic getEpicsId(int id) {
-        return epics.getOrDefault(id, null);
+    public Epic getEpicsById(int id) {
+        Epic epic = epics.getOrDefault(id, null);
+        historyManager.add(epic);
+        return epic;
     }
 
     @Override
     public Subtask getSubTasksById(int id) {
-        return subtasks.getOrDefault(id, null);
+        Subtask subtask = subtasks.getOrDefault(id, null);
+        historyManager.add(subtask);
+        return subtask;
     }
 
     @Override
@@ -150,6 +158,12 @@ public  class SupportManager implements TaskManager {
         id++;
         return id;
     }
+
+    @Override
+    public List<Task> history() {
+        return historyManager.getHistory();
+    }
+
     private void checkEpicStatus(Epic epic) {
 
         if (epic.getEpicSubtasks().size() == 0) {
