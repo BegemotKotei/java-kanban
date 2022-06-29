@@ -4,18 +4,18 @@ import java.util.ArrayList;
 
 public class Epic extends Task {
 
-    private ArrayList<Integer> epicSubtasks; //Изменил метод
+    private ArrayList<Subtask> epicSubtasks; //
 
     public Epic(String name, String description) {
         super(name, description, "");
         epicSubtasks = new ArrayList<>();
     }
 
-    public ArrayList<Integer> getEpicSubtasks() {
+    public ArrayList<Subtask> getEpicSubtasks() {
         return epicSubtasks;
     }
 
-    public void setEpicSubtasks(ArrayList<Integer> epicSubtasks) {
+    public void setEpicSubtasks(ArrayList<Subtask> epicSubtasks) {
         this.epicSubtasks = epicSubtasks;
     }
 

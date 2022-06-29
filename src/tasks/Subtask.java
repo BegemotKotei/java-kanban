@@ -5,6 +5,7 @@ public class Subtask extends Task {
 
     public Subtask(String name, String description, String Status) {
         super(name, description, Status);
+        this.id = id;
     }
 
     public Subtask(String name, String description, String Status, Epic id) {
@@ -18,6 +19,11 @@ public class Subtask extends Task {
 
     public void setEpic(Epic id) {
         this.id = id;
+    }
+
+    @Override
+    public void setStatus(String Status) {
+        super.setStatus(Status);
     }
 
     @Override

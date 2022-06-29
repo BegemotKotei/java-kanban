@@ -102,7 +102,7 @@ public  class InMemoryTaskManager implements TaskManager {
     public void createSubTask(Subtask subtask) {
         subtask.setId(generateId());
         subtasks.put(id, subtask);
-        subtask.getEpic().getEpicSubtasks().add(id);
+        subtask.getEpic().getEpicSubtasks().add(subtask);
         checkEpicStatus(subtask.getEpic());
     }
 
@@ -136,7 +136,7 @@ public  class InMemoryTaskManager implements TaskManager {
         if (epics.containsKey(id)) {
             Epic epic = epics.get(id);
             epics.remove(id);
-            for (Integer subtaskId : epic.getEpicSubtasks()) {
+            for (Subtask subtaskId : epic.getEpicSubtasks()) {
                 subtasks.remove(subtaskId);
             }
             epic.setEpicSubtasks(new ArrayList<>());
@@ -173,13 +173,11 @@ public  class InMemoryTaskManager implements TaskManager {
 
         boolean allTaskIsNew = true;
         boolean allTaskIsDone = true;
-
-        for (Integer epicSubtaskId : epic.getEpicSubtasks()) {
-            String status = subtasks.get(epicSubtaskId).getStatus();
-            if (!status.equals(Status.NEW)) {
+        for (Subtask subtask : epic.getEpicSubtasks()) {
+            if (!subtask.equals(Status.NEW)) {
                 allTaskIsNew = false;
             }
-            if (!status.equals(Status.DONE)) {
+            if (!subtask.equals(Status.DONE)) {
                 allTaskIsDone = false;
             }
         }
@@ -194,7 +192,3 @@ public  class InMemoryTaskManager implements TaskManager {
 
     }
 }
-
-
-
-

@@ -1,3 +1,4 @@
+import manager.HistoryManager;
 import tasks.Task;
 import tasks.Epic;
 import tasks.Subtask;
@@ -26,6 +27,10 @@ public class Main {
         /*manager.updateSubTask(st1);
         *//*manager.removeAllSubTasks();*//*
         manager.removeTaskById(7);*/
+        HistoryManager manager1 = Managers.getDefaulHistory();
+        manager1.add(task1);
+        manager1.add(task2);
+        System.out.println(manager1.getHistory());
 
 
         System.out.println(manager.getTasksById(7));
