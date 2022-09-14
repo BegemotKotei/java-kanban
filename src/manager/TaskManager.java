@@ -17,15 +17,15 @@ public interface TaskManager {
     Task getTasksById(int id);
     Epic getEpicsById(int id);
     Subtask getSubTasksById(int id);
-    Task createTask(Task task);
+    void createTask(Task task);
     void createEpic(Epic epic);
     void createSubTask(Subtask subTask);
     void updateTask(Task task);
     void updateEpic(Epic epic);
     void updateSubTask(Subtask subTask);
-    void removeTaskById(int Id);
-    void removeEpicById(int Id);
-    void removeSubTaskById(int Id);
+    void removeTaskById(int id);
+    void removeEpicById(int id);
+    void removeSubTaskById(int id);
     int generateId();
     List<Task> history();
 

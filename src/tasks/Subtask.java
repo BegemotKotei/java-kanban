@@ -1,32 +1,47 @@
 package tasks;
 
+import manager.TaskType;
+
 public class Subtask extends Task {
-    private Epic id;
+    private Epic epic;
 
-    public Subtask(String name, String description, String Status) {
-        super(name, description, Status);
+    public Subtask(String name, String description, Status status) {
+        super(name, description, status);
     }
 
-    public Subtask(String name, String description, String Status, Epic id) {
-        super(name, description, Status);
-        this.id = id;
+    public Subtask(String name, String description, Status status, Epic epic) {
+        super(name, description, status);
+        this.epic = epic;
+        this.taskType = TaskType.SUBTASK;
     }
+
+    public Subtask(int id, String name, String description, Status status, Epic epic) {
+        super(id, name, description, status);
+        this.epic = epic;
+        this.taskType = TaskType.SUBTASK;
+    }
+
 
     public Epic getEpic() {
-        return id;
+        return epic;
     }
 
-    public void setEpic(Epic id) {
-        this.id = id;
+    public void setEpic(Epic epic) {
+        this.epic = epic;
     }
 
     @Override
-    public void setStatus(String Status) {
-        super.setStatus(Status);
+    public String toStringFromFile() {
+        return String.format("%s,%s,%s,%s,%s,%s", id, taskType, name, status, description, epic.getId());
     }
 
     @Override
     public String toString() {
-        return "Subtask{id=" + id + ", Название='" + name + ", Описание='" + description + ", Статус='" + Status + '}';
+        return "Подзадача{" +
+                "№=" + id +
+                ", Название='" + name + '\'' +
+                ", Описание='" + description + '\'' +
+                ", Статус='" + status + '\'' +
+                '}';
     }
 }

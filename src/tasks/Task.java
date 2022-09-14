@@ -1,16 +1,28 @@
 package tasks;
 
+import manager.TaskType;
+
 public class Task {
     protected int id;
     protected String name;
     protected String description;
-    protected String Status;
+    protected Status status;
+    protected TaskType taskType;
 
-    public Task(String name, String description, String Status) {
+    public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
-        this.Status = Status;
+        this.status = status;
+        this.taskType = TaskType.TASK;
     }
+    public Task(int id, String name, String description, Status status) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.taskType = TaskType.TASK;
+    }
+
 
     public String getname() {
         return name;
@@ -33,21 +45,31 @@ public class Task {
         return id;
     }
 
-    public String getStatus() {
-        return Status;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setStatus(String Status) {
-        this.Status = Status;
+    public void setStatus(Status Status) {
+        this.status = Status;
     }
 
     public void setId(int id) {
         this.id = id;
     }
 
+    public String toStringFromFile() {
+        return String.format("%s,%s,%s,%s,%s,%s", id, taskType, name, status, description, "");
+    }
+
     @Override
     public String toString() {
-        return "Task{id=" + id + ", Название='" + name + ", Описание='" + description + ", Статус='" + Status + '}';
+        return "ЗАДАЧА{" +
+                "№=" + id +
+                ", Название='" + name + '\'' +
+                ", Описание='" + description + '\'' +
+                ", Статус='" + status + '\'' +
+                '}' +
+                "\n";
     }
 }
 

@@ -7,9 +7,13 @@ import java.util.Map;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final Map<Integer, Node> receivedTasks = new HashMap<>();
+    private final Map<Integer, Node> receivedTasks;
     private Node head;
     private Node tail;
+
+    public InMemoryHistoryManager() {
+         this.receivedTasks = new HashMap<>();
+    }
 
     private static class Node {
         private Task task;
@@ -27,12 +31,11 @@ public class InMemoryHistoryManager implements HistoryManager {
         final Node oldTail = tail;
         final Node newNode = new Node(oldTail, task, null);
         tail = newNode;
+        receivedTasks.put(task.getId(), newNode);
         if(oldTail == null) {
             head = newNode;
-            receivedTasks.put(task.getId(), newNode);
         } else {
             oldTail.next = newNode;
-            receivedTasks.put(task.getId(), newNode);
         }
     }
 
@@ -44,10 +47,10 @@ public class InMemoryHistoryManager implements HistoryManager {
             if (head == node && tail == node) {
                 head = null;
                 tail = null;
-            } else if (head == node && tail !=node) {
+            } else if (head == node) {
                 head = next;
                 head.prev = null;
-            } else if (head != node && tail == node) {
+            } else if (tail == node) {
                 tail = prev;
                 tail.next = null;
             } else {
@@ -74,7 +77,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             linkLast((task));
         }
     }
-    
+
     @Override
     public void remove(int id) {
         removeNode(receivedTasks.get(id));
