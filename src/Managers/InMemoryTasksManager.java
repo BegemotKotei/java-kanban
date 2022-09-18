@@ -1,7 +1,8 @@
-package manager;
+package Managers;
 
-import tasks.*;
+import Tasks.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,18 +23,18 @@ public  class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public HashMap<Integer, Task> getTasks() {
-        return tasks;
+    public ArrayList<Task> getTasks() {
+        return new ArrayList<>(tasks.values());
     }
 
     @Override
-    public HashMap<Integer, Epic> getEpics() {
-        return epics;
+    public ArrayList< Epic> getEpics() {
+        return new ArrayList<>(epics.values());
     }
 
     @Override
-    public HashMap<Integer, Subtask> getSubTasks() {
-        return subtasks;
+    public ArrayList<Subtask> getSubTasks() {
+        return new ArrayList<>(subtasks.values());
     }
 
     @Override
@@ -198,6 +199,20 @@ public  class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
+    public ArrayList<Subtask> getEpicSubtasksList(Epic epic) {
+        if (epic != null) {
+            ArrayList<Subtask> subtaskList = new ArrayList<>();
+            for (Subtask subtask : subtasks.values()) {
+                if (subtask.getIdEpic() == epic.getId()) {
+                    subtaskList.add(subtask);
+                }
+            }
+            return subtaskList;
+        }
+        return null;
+    }
+
+    @Override
     public int generateId() {
         id++;
         return id;
@@ -208,7 +223,7 @@ public  class InMemoryTasksManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    private boolean checkId (int id) {
+    protected boolean checkId (int id) {
         return 0 < id && id <= generateId();
     }
 }

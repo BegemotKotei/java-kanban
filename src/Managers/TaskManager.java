@@ -1,17 +1,17 @@
-package manager;
+package Managers;
 
-import tasks.Task;
-import tasks.Epic;
-import tasks.Subtask;
-import tasks.Status;
+import Tasks.Task;
+import Tasks.Epic;
+import Tasks.Subtask;
+import Tasks.Status;
 
 import java.util.*;
 
 public interface TaskManager {
 
-    HashMap<Integer, Task> getTasks();
-    HashMap<Integer, Epic> getEpics();
-    HashMap<Integer, Subtask> getSubTasks();
+    ArrayList<Task> getTasks();
+    ArrayList<Epic> getEpics();
+    ArrayList<Subtask> getSubTasks();
 
     void removeAllTasks();
     void removeAllEpics();
@@ -32,6 +32,8 @@ public interface TaskManager {
     void removeTaskById(int id);
     void removeEpicById(int id);
     void removeSubTaskById(int id);
+
+    ArrayList<Subtask> getEpicSubtasksList(Epic epic);
 
     int generateId();
 
