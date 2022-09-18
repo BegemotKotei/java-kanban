@@ -1,47 +1,28 @@
-package tasks;
+package Tasks;
 
-import manager.TaskType;
+import Managers.TaskType;
 
 public class Subtask extends Task {
-    private Epic epic;
-
-    public Subtask(String name, String description, Status status) {
-        super(name, description, status);
+    private int idEpic;
+    public Subtask(int id, String name, String description, int idEpic, TaskType taskType, Status status){
+        super(id, name, description, taskType, status);
+        this.idEpic = idEpic;
+    }
+    public Subtask(String name, String description, int idEpic, TaskType taskType) {
+        super(name, description, taskType);
+        this.idEpic = idEpic;
     }
 
-    public Subtask(String name, String description, Status status, Epic epic) {
-        super(name, description, status);
-        this.epic = epic;
-        this.taskType = TaskType.SUBTASK;
+    public int getIdEpic() {
+        return idEpic;
     }
 
-    public Subtask(int id, String name, String description, Status status, Epic epic) {
-        super(id, name, description, status);
-        this.epic = epic;
-        this.taskType = TaskType.SUBTASK;
-    }
-
-
-    public Epic getEpic() {
-        return epic;
-    }
-
-    public void setEpic(Epic epic) {
-        this.epic = epic;
-    }
-
-    @Override
-    public String toStringFromFile() {
-        return String.format("%s,%s,%s,%s,%s,%s", id, taskType, name, status, description, epic.getId());
+    public void setIdEpic(int idEpic) {
+        this.idEpic = idEpic;
     }
 
     @Override
     public String toString() {
-        return "Подзадача{" +
-                "№=" + id +
-                ", Название='" + name + '\'' +
-                ", Описание='" + description + '\'' +
-                ", Статус='" + status + '\'' +
-                '}';
+        return super.toString() + "," + idEpic;
     }
 }

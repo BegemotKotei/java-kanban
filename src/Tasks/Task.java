@@ -1,34 +1,37 @@
-package tasks;
+package Tasks;
 
-import manager.TaskType;
+import Managers.TaskType;
 
 public class Task {
     protected int id;
     protected String name;
     protected String description;
-    protected Status status;
     protected TaskType taskType;
+    protected Status status;
 
-    public Task(String name, String description, Status status) {
+    public Task(String name, String description,TaskType taskType, Status status) {
         this.name = name;
         this.description = description;
+        this.taskType = taskType;
         this.status = status;
-        this.taskType = TaskType.TASK;
     }
-    public Task(int id, String name, String description, Status status) {
+    public Task(int id, String name, String description, TaskType taskType, Status status) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.taskType = taskType;
         this.status = status;
-        this.taskType = TaskType.TASK;
     }
-
-
-    public String getname() {
+    public Task(String name, String description, TaskType taskType) {
+        this.name = name;
+        this.description = description;
+        this.taskType = taskType;
+    }
+    public String getName() {
         return name;
     }
 
-    public void setname(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -56,20 +59,14 @@ public class Task {
     public void setId(int id) {
         this.id = id;
     }
-
-    public String toStringFromFile() {
-        return String.format("%s,%s,%s,%s,%s,%s", id, taskType, name, status, description, "");
-    }
-
     @Override
     public String toString() {
-        return "ЗАДАЧА{" +
-                "№=" + id +
-                ", Название='" + name + '\'' +
-                ", Описание='" + description + '\'' +
-                ", Статус='" + status + '\'' +
-                '}' +
-                "\n";
+        return id + ","
+                + name + ","
+                + "," + description + ","
+                + taskType.toString() +","
+                + status.toString();
+
     }
 }
 
