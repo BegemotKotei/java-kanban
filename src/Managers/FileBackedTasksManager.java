@@ -1,20 +1,17 @@
 package Managers;
 
 import Exception.ManagerSaveException;
-import Managers.InMemoryTasksManager;
 import Tasks.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.*;
 import java.nio.file.Files;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
-    public static void main (String[] args) {
+    public static void main (String[] args) throws FileNotFoundException {
+        File file = new File("data\\csv.csv");
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
         Task task1 = new Task("Забрать книги","Поехать в пункт выдачи", TaskType.TASK, Status.NEW);
         fileBackedTasksManager.createTask(task1);
@@ -30,16 +27,16 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBackedTasksManager.createEpic(epic2);
         Subtask subtask3 = new Subtask("Закупить стройматериалы", "Найти нужные материалы и сделать стол",2, TaskType.SUBTASK);
         fileBackedTasksManager.createSubTask(subtask3, epic2.getId());
-        fileBackedTasksManager.getTasksById(task2.getId());
         fileBackedTasksManager.getTasksById(task1.getId());
-        fileBackedTasksManager.getEpicsById(epic2.getId());
+        fileBackedTasksManager.getTasksById(task2.getId());
         fileBackedTasksManager.getEpicsById(epic1.getId());
-        System.out.println();
+        fileBackedTasksManager.getEpicsById(epic2.getId());
+        loadFromFile(file);
     }
     public void save() throws ManagerSaveException {
-        File file = new File ("C:\\Users\\theha\\dev\\java-kanban\\data\\csv.csv");
+        File file = new File ("data\\csv.csv");
         try {
-            String head = "id,type,name,status,description,epic";
+            String head = "id,name,description,type,status,epicId\n";
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(head);
             for (Task task : tasks.values()) {
@@ -69,7 +66,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 String line = lines[i];
                 if (line.isEmpty()) {
                     line = lines[i + 1];
-                    history = CSVFormatter.historyFromString(lines[i]);
+                    history = CSVFormatter.historyFromString(line);
                     break;
                 }
                 String[] type = line.split(",");
@@ -92,6 +89,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         } catch(IOException e) {
             throw new FileNotFoundException("Файл не может быть прочитан.");
         }
+        //Оставляю для проверки работы метода. Почему-то не видит строки с тасками:(
         System.out.println(tasksManager.inMemoryHistoryManager.getHistory());
         System.out.println(tasksManager.tasks);
         System.out.println(tasksManager.epics);
@@ -202,16 +200,16 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     @Override
     public Subtask createSubTask(Subtask subtask, int epicId) {
-         if (subtask != null && super.checkId(epicId)) {
-             super.createSubTask(subtask, epicId);
-             try {
-                 save();
-             } catch (ManagerSaveException e) {
-                 e.printStackTrace();
-             }
-             return subtask;
-         }
-         return  null;
+        if (subtask != null && super.checkId(epicId)) {
+            super.createSubTask(subtask, epicId);
+            try {
+                save();
+            } catch (ManagerSaveException e) {
+                e.printStackTrace();
+            }
+            return subtask;
+        }
+        return  null;
     }
 
     @Override
