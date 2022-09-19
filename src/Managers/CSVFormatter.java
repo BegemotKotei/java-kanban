@@ -7,7 +7,7 @@ import java.util.List;
 
 public class CSVFormatter {
 
-    public static List<Integer> historyFromString(String value) {
+    public static List<Integer> historyFromString(String value) { //Метод восстановления менеджера из csv.
         List<Integer> result = new ArrayList<>();
         String[] lines = value.split(",");
         for(String line :lines) {
@@ -16,7 +16,7 @@ public class CSVFormatter {
         return result;
     }
 
-    public static Task taskFromString(String value) {
+    public static Task taskFromString(String value) { //Метод создания task из строк.
         String[] lines = value.split(",");
         int id = Integer.parseInt(lines[0]);
         TaskType taskType = typeFromString(lines[1]);
@@ -30,7 +30,7 @@ public class CSVFormatter {
         return task;
     }
 
-    public static Epic epicFromString(String value) {
+    public static Epic epicFromString(String value) { //Метод создания epic из строк.
         String[] lines = value.split(",");
         int id = Integer.parseInt(lines[0]);
         TaskType taskType = typeFromString(lines[1]);
@@ -44,7 +44,7 @@ public class CSVFormatter {
         return epic;
     }
 
-    public static Subtask subtaskFromString(String value) {
+    public static Subtask subtaskFromString(String value) { //Метод создания subtask из строк.
         String[] lines = value.split(",");
         int id = Integer.parseInt(lines[0]);
         TaskType taskType = typeFromString(lines[1]);
@@ -58,7 +58,7 @@ public class CSVFormatter {
         subtask.setStatus(status);
         return subtask;
     }
-    static String toString(HistoryManager manager) {
+    static String toString(HistoryManager manager) { //Метод сохранения задачи в строку.
         List<Task> tasks = manager.getHistory();
         List<String> ids = new ArrayList<>();
         for (Task task : tasks) {
