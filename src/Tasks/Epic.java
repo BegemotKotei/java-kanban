@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 public class Epic extends Task {
 
-    private ArrayList<Integer> epicSubtasks = new ArrayList<>();
+    private final ArrayList<Integer> epicSubtasks = new ArrayList<>();
 
     public Epic(int id, String name, String description, TaskType taskType) {
         super(id, name, description, taskType, null);
@@ -29,7 +29,7 @@ public class Epic extends Task {
         Iterator<Integer> iterator = epicSubtasks.iterator();
         while (iterator.hasNext()) {
             Integer element = iterator.next();
-            if ((int) element == subtaskId) {
+            if (element == subtaskId) {
                 iterator.remove();
             }
         }
