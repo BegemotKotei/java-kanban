@@ -8,56 +8,70 @@ import java.nio.file.Files;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
+    private File file;
+    public FileBackedTasksManager (File file) {
+        this.file = file;
+    }
     public static void main (String[] args) throws FileNotFoundException {
-        File file = new File("data\\csv.csv");
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
+        FileBackedTasksManager fileBackedTasksManager1 = new FileBackedTasksManager(new File("data\\csv.csv"));
         Task task1 = new Task("Забрать книги","Поехать в пункт выдачи", TaskType.TASK, Status.NEW);
-        fileBackedTasksManager.createTask(task1);
+        fileBackedTasksManager1.createTask(task1);
         Task task2 = new Task("Сходить на шашлыки", "Собрать друзей", TaskType.TASK, Status.NEW);
-        fileBackedTasksManager.createTask(task2);
+        fileBackedTasksManager1.createTask(task2);
         Epic epic1 = new Epic("Почистить пк", "Чистка пк", TaskType.EPIC);
-        fileBackedTasksManager.createEpic(epic1);
-        Subtask subtask1 = new Subtask("Купить термопасту", "Сходить в днс",1, TaskType.SUBTASK);
-        fileBackedTasksManager.createSubTask(subtask1, epic1.getId());
-        Subtask subtask2 = new Subtask("Разобрать пк", "Разобрать и собрать  пк",1, TaskType.SUBTASK);
-        fileBackedTasksManager.createSubTask(subtask2, epic1.getId());
-        Epic epic2 = new Epic("Сделать стол", "Сделать самому рабочий стол", TaskType.EPIC);
-        fileBackedTasksManager.createEpic(epic2);
-        Subtask subtask3 = new Subtask("Закупить стройматериалы", "Найти нужные материалы и сделать стол",2, TaskType.SUBTASK);
-        fileBackedTasksManager.createSubTask(subtask3, epic2.getId());
-        fileBackedTasksManager.getTasksById(task1.getId());
-        fileBackedTasksManager.getTasksById(task2.getId());
-        fileBackedTasksManager.getEpicsById(epic1.getId());
-        fileBackedTasksManager.getEpicsById(epic2.getId());
-        loadFromFile(file);
+        fileBackedTasksManager1.createEpic(epic1);
+        Subtask subtask1 = new Subtask( "Купить термопасту", "Сходить в днс", TaskType.SUBTASK, Status.NEW, 1);
+        fileBackedTasksManager1.createSubTask(subtask1, epic1.getId());
+        Subtask subtask2 = new Subtask("Разобрать пк", "Разобрать и собрать пк", TaskType.SUBTASK,Status.NEW, 1);
+        fileBackedTasksManager1.createSubTask(subtask2, epic1.getId());
+        Epic epic2 = new Epic(6,"Сделать стол", "Сделать самому рабочий стол", TaskType.EPIC);
+        fileBackedTasksManager1.createEpic(epic2);
+        Subtask subtask3 = new Subtask("Закупить стройматериалы", "Найти нужные материалы и сделать стол", TaskType.SUBTASK, Status.NEW, 2);
+        fileBackedTasksManager1.createSubTask(subtask3, epic2.getId());
+        fileBackedTasksManager1.getTasksById(task1.getId());
+        fileBackedTasksManager1.getTasksById(task2.getId());
+        fileBackedTasksManager1.getEpicsById(epic1.getId());
+        fileBackedTasksManager1.getEpicsById(epic2.getId());
+        FileBackedTasksManager fileBackedTasksManager2 = loadFromFile(new File("data\\csv.csv"));
+        //Туплю что-то:( не могу понять почему в консоли две зяпятых после name:д
+        System.out.println(fileBackedTasksManager2.getTasks());
+        System.out.println(fileBackedTasksManager2.getEpics());
+        System.out.println(fileBackedTasksManager2.getSubTasks());
+
     }
     public void save() throws ManagerSaveException {
         File file = new File ("data\\csv.csv");
-        try {
-            String head = "id,name,description,type,status,epicId\n";
-            FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(head);
-            for (Task task : tasks.values()) {
-                fileWriter.write(task.toString() + System.lineSeparator());
+        try (BufferedWriter write = new BufferedWriter(new FileWriter(file))) {
+            write.write(CSVFormatter.getHeader());
+            write.newLine();
+            for (Map.Entry<Integer,Task> entry : tasks.entrySet()) {
+                final Task task = entry.getValue();
+                write.write(CSVFormatter.taskToString(task));
+                write.newLine();
             }
-            for (Epic epic : epics.values()) {
-                fileWriter.write(epic.toString() + System.lineSeparator());
+            for (Map.Entry<Integer, Epic> entry : epics.entrySet()) {
+                final Epic epic = entry.getValue();
+                write.write(CSVFormatter.epicToString(epic));
+                write.newLine();
             }
-            for (Subtask subtask : subtasks.values()) {
-                fileWriter.write(subtask.toString() + System.lineSeparator());
+            for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
+                final Subtask subtask = entry.getValue();
+                write.write(CSVFormatter.subtaskToString(subtask));
+                write.newLine();
             }
-            fileWriter.write(System.lineSeparator());
-            fileWriter.write(CSVFormatter.toString(this.inMemoryHistoryManager));
-            fileWriter.close();
-        } catch(IOException e) {
-            throw new ManagerSaveException("Не удалось сохранить файл.");
+            write.newLine();
+            write.write(CSVFormatter.historyToString(this.inMemoryHistoryManager));
+            write.newLine();
+        } catch (IOException e) {
+            throw new ManagerSaveException("Не удалось сохранить файл: " + file.getName() + " .");
         }
     }
 
     public static FileBackedTasksManager loadFromFile(File file) throws FileNotFoundException {
-        final FileBackedTasksManager tasksManager = new FileBackedTasksManager();
+        final FileBackedTasksManager tasksManager = new FileBackedTasksManager(file); //Теперь заполняется тасками, епиками и сабтасками
         List<Integer> history = null;
         try {
             String csv = Files.readString(file.toPath());
@@ -70,7 +84,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                     break;
                 }
                 String[] type = line.split(",");
-                String typeTask = type[1];
+                String typeTask = type[3];
                 switch (typeTask){
                     case "TASK" :
                         Task task = CSVFormatter.taskFromString(lines[i]);
@@ -81,20 +95,15 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                         tasksManager.epics.put(epic.getId(), epic);
                         break;
                     case "SUBTASK" :
-                        Subtask subtask = CSVFormatter.subtaskFromString(lines[1]);
+                        Subtask subtask = CSVFormatter.subtaskFromString(lines[i]);
                         tasksManager.subtasks.put(subtask.getId(), subtask);
                         break;
                 }
             }
         } catch(IOException e) {
-            throw new FileNotFoundException("Файл не может быть прочитан.");
+            throw new FileNotFoundException("Файл: " + file.getName() + " не может быть прочитан.");
         }
-        //Оставляю для проверки работы метода. Почему-то не видит строки с тасками:(
-        System.out.println(tasksManager.inMemoryHistoryManager.getHistory());
-        System.out.println(tasksManager.tasks);
-        System.out.println(tasksManager.epics);
-        System.out.println(tasksManager.subtasks);
-        System.out.println(history);
+        System.out.println("Сохранённые id задачь: " + history);
         return tasksManager;
     }
 
@@ -145,34 +154,22 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     @Override
     public Task getTasksById(int id) {
-        Task task = super.getTasksById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        final Task task = super.getTasksById(id);
+        save();
         return task;
     }
 
     @Override
     public Epic getEpicsById(int id) {
-        Epic epic = super.getEpicsById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        final Epic epic = super.getEpicsById(id);
+        save();
         return epic;
     }
 
     @Override
     public Subtask getSubTasksById(int id) {
-        Subtask subtask = super.getSubTasksById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        final Subtask subtask = super.getSubTasksById(id);
+        save();
         return subtask;
     }
 
