@@ -39,6 +39,10 @@ public class Task {
         return description;
     }
 
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
