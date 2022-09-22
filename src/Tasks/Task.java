@@ -67,7 +67,7 @@ public class Task {
     public String toString() {
         return id + ","
                 + name + ","
-                + "," + description + ","
+                + description + ","
                 + taskType.toString() +","
                 + status.toString();
 
