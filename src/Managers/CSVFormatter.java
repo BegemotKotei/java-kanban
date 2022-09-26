@@ -10,7 +10,7 @@ public class CSVFormatter {
     public static List<Integer> historyFromString(String value) { //Метод восстановления менеджера из csv.
         List<Integer> result = new ArrayList<>();
         String[] lines = value.split(",");
-        for(String line :lines) {
+        for(String line : lines) {
             result.add(Integer.parseInt(line));
         }
         return result;
