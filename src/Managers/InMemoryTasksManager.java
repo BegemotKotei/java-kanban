@@ -8,10 +8,10 @@ import java.util.List;
 
 public  class InMemoryTasksManager implements TaskManager {
     int id;
-    final HashMap<Integer, Task> tasks;
-    final HashMap<Integer, Epic> epics;
-    final HashMap<Integer, Subtask> subtasks;
-    final HistoryManager historyManager;
+    protected final HashMap<Integer, Task> tasks;
+    protected final HashMap<Integer, Epic> epics;
+    protected final HashMap<Integer, Subtask> subtasks;
+    protected final HistoryManager historyManager;
     HistoryManager inMemoryHistoryManager = Managers.getDefaulHistory();
 
     public InMemoryTasksManager() {
@@ -221,6 +221,17 @@ public  class InMemoryTasksManager implements TaskManager {
     @Override
     public List<Task> history() {
         return historyManager.getHistory();
+    }
+
+    @Override
+    public Task findTask(Integer taskId) {
+        if (tasks.containsKey(taskId)) {
+            return tasks.get(taskId);
+        } else if (epics.containsKey(taskId)) {
+            return epics.get(taskId);
+        } else {
+            return subtasks.getOrDefault(taskId, null);
+        }
     }
 
     protected boolean checkId (int id) {
