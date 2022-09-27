@@ -1,6 +1,6 @@
-package Tasks;
+package tasks;
 
-import Managers.TaskType;
+import managers.TaskType;
 
 public class Task {
     protected int id;

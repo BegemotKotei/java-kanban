@@ -1,6 +1,6 @@
-package Tasks;
+package tasks;
 
-import Managers.TaskType;
+import managers.TaskType;
 
 public class Subtask extends Task {
     private int idEpic;

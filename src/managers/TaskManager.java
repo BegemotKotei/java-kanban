@@ -1,9 +1,9 @@
-package Managers;
+package managers;
 
-import Tasks.Task;
-import Tasks.Epic;
-import Tasks.Subtask;
-import Tasks.Status;
+import tasks.Task;
+import tasks.Epic;
+import tasks.Subtask;
+import tasks.Status;
 
 import java.util.*;
 
@@ -40,7 +40,7 @@ public interface TaskManager {
     void removeSubTaskById(int id);
 
     // Получение списка сабтасков определённого эпика.
-    ArrayList<Subtask> getEpicSubtasksList(Epic epic);
+    List<Subtask> getEpicSubtasksList(Epic epic);
 
     // Создание id.
     int generateId();

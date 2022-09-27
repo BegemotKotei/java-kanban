@@ -1,6 +1,6 @@
-package Tasks;
+package tasks;
 
-import Managers.TaskType;
+import managers.TaskType;
 
 import java.util.ArrayList;
 import java.util.Iterator;

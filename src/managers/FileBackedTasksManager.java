@@ -1,15 +1,13 @@
-package Managers;
+package managers;
 
-import Exception.ManagerSaveException;
+import exception.ManagerSaveException;
 
-import Tasks.*;
+import tasks.*;
 
 import java.io.*;
 import java.nio.file.Files;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
@@ -37,7 +35,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBackedTasksManager1.getTasksById(task2.getId());
         fileBackedTasksManager1.getEpicsById(epic1.getId());
         fileBackedTasksManager1.getEpicsById(epic2.getId());
-        FileBackedTasksManager fileBackedTasksManager2 = loadFromFile(new File("data\\csv.csv"));
+        FileBackedTasksManager fileBackedTasksManager2 = FileBackedTasksManager.loadFromFile(new File("data\\csv.csv"));
         System.out.println(fileBackedTasksManager2.getTasks());
         System.out.println(fileBackedTasksManager2.getEpics());
         System.out.println(fileBackedTasksManager2.getSubTasks());
@@ -100,28 +98,15 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                         break;
                 }
             }
-            for (Integer taskId : history) {
-                tasksManager.historyManager.add(tasksManager.findTask(taskId));
+            if (history != null) {
+                for (Integer taskId : history) {
+                    tasksManager.historyManager.add(tasksManager.findTask(taskId));
+                }
             }
         } catch(IOException e) {
             throw new FileNotFoundException("Файл: " + file.getName() + " не может быть прочитан.");
         }
         return tasksManager;
-    }
-
-    @Override
-    public ArrayList<Task> getTasks() {
-        return super.getTasks();
-    }
-
-    @Override
-    public ArrayList<Epic> getEpics() {
-        return super.getEpics();
-    }
-
-    @Override
-    public ArrayList<Subtask> getSubTasks() {
-        return super.getSubTasks();
     }
 
     @Override
@@ -224,8 +209,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     @Override
-    public ArrayList<Subtask> getEpicSubtasksList(Epic epic) {
-        ArrayList<Subtask> subtasksList = super.getEpicSubtasksList(epic);
+    public List<Subtask> getEpicSubtasksList(Epic epic) {
+        List<Subtask> subtasksList = super.getEpicSubtasksList(epic);
         save();
         return subtasksList;
     }
