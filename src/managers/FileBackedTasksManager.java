@@ -15,7 +15,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public FileBackedTasksManager (File file) {
         this.file = file;
     }
-    public static void main (String[] args) throws FileNotFoundException {
+    public static void main (String[] args) {
         FileBackedTasksManager fileBackedTasksManager1 = new FileBackedTasksManager(new File("data\\csv.csv"));
         Task task1 = new Task("Забрать книги","Поехать в пункт выдачи", TaskType.TASK, Status.NEW);
         fileBackedTasksManager1.createTask(task1);
@@ -69,7 +69,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
     }
 
-    public static FileBackedTasksManager loadFromFile(File file) throws FileNotFoundException {
+    public static FileBackedTasksManager loadFromFile(File file)  {
         final FileBackedTasksManager tasksManager = new FileBackedTasksManager(file);
         try {
             String csv = Files.readString(file.toPath());
@@ -104,7 +104,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 }
             }
         } catch(IOException e) {
-            throw new FileNotFoundException("Файл: " + file.getName() + " не может быть прочитан.");
+            throw new ManagerSaveException("Файл: " + file.getName() + " не может быть прочитан.");
         }
         return tasksManager;
     }
