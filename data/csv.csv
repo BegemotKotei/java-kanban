@@ -1,10 +1,5 @@
-id,name,description,type,status,epicId
-1,Забрать книги,Поехать в пункт выдачи,TASK,NEW
-2,Сходить на шашлыки,Собрать друзей,TASK,NEW
-3,Почистить пк,Чистка пк,EPIC,NEW
-10,Сделать стол,Сделать самому рабочий стол,EPIC,NEW
-6,Купить термопасту,Сходить в днс,SUBTASK,NEW,1
-9,Разобрать пк,Разобрать и собрать пк,SUBTASK,NEW,1
-13,Закупить стройматериалы,Найти нужные материалы и сделать стол,SUBTASK,NEW,2
+id,TaskType,name,status,description,startTime,duration,endTime,epicId
+1,TASK,Task name,NEW,Task description,2022-10-13T10:00:00,40,2022-10-13T10:40:00
+2,EPIC,Epic name,NEW,Epic description,+999999999-12-31T23:59:59.999999999,0,+999999999-12-31T23:59:59.999999999
 
-1,2,3,10
+1
