@@ -1,5 +1,6 @@
 package managers;
 
+import exception.ValidationException;
 import tasks.Task;
 import tasks.Epic;
 import tasks.Subtask;
@@ -8,6 +9,8 @@ import tasks.Status;
 import java.util.*;
 
 public interface TaskManager {
+
+    ArrayList<Task> getPrioritizedTasks();
 
     // Получение списка задач.
     ArrayList<Task> getTasks();
@@ -42,8 +45,6 @@ public interface TaskManager {
     // Получение списка сабтасков определённого эпика.
     List<Subtask> getEpicSubtasksList(Epic epic);
 
-    // Создание id.
-    int generateId();
 
     // История просмотра задач.
     List<Task> history();

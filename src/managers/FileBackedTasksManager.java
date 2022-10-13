@@ -9,6 +9,7 @@ import java.nio.file.Files;
 
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
     private final File file;
@@ -17,22 +18,22 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
     public static void main (String[] args) {
         FileBackedTasksManager fileBackedTasksManager1 = new FileBackedTasksManager(new File("data\\csv.csv"));
-        Task task1 = new Task("Забрать книги","Поехать в пункт выдачи", TaskType.TASK, Status.NEW);
+        /*Task task1 = new Task("Забрать книги","Поехать в пункт выдачи", TaskType.TASK, LocalDateTime.of(2022,11,13,12, 30), 50); //Если вставляю Такс, эип и сабтаск вместе, один тип задач убирается, не понимаю почему(
         fileBackedTasksManager1.createTask(task1);
-        Task task2 = new Task("Сходить на шашлыки", "Собрать друзей", TaskType.TASK, Status.NEW);
-        fileBackedTasksManager1.createTask(task2);
+        Task task2 = new Task("Сходить на шашлыки", "Собрать друзей", TaskType.TASK, LocalDateTime.of(2022,11,16,17, 0), 240);
+        fileBackedTasksManager1.createTask(task2);*/
         Epic epic1 = new Epic("Почистить пк", "Чистка пк", TaskType.EPIC);
         fileBackedTasksManager1.createEpic(epic1);
-        Subtask subtask1 = new Subtask( "Купить термопасту", "Сходить в днс", TaskType.SUBTASK, Status.NEW, 1);
+        Subtask subtask1 = new Subtask( "Купить термопасту", "Сходить в днс", 1, TaskType.SUBTASK, LocalDateTime.of(2022,10,13,10, 0), 20);
         fileBackedTasksManager1.createSubTask(subtask1, epic1.getId());
-        Subtask subtask2 = new Subtask("Разобрать пк", "Разобрать и собрать пк", TaskType.SUBTASK,Status.NEW, 1);
+        Subtask subtask2 = new Subtask("Разобрать пк", "Разобрать и собрать пк", 1, TaskType.SUBTASK, LocalDateTime.of(2022,10,13,10, 20), 40);
         fileBackedTasksManager1.createSubTask(subtask2, epic1.getId());
-        Epic epic2 = new Epic(6,"Сделать стол", "Сделать самому рабочий стол", TaskType.EPIC);
+        Epic epic2 = new Epic("Сделать стол", "Сделать самому рабочий стол", TaskType.EPIC);
         fileBackedTasksManager1.createEpic(epic2);
-        Subtask subtask3 = new Subtask("Закупить стройматериалы", "Найти нужные материалы и сделать стол", TaskType.SUBTASK, Status.NEW, 2);
+        Subtask subtask3 = new Subtask("Закупить стройматериалы", "Найти нужные материалы и сделать стол", 2, TaskType.SUBTASK, LocalDateTime.of(2022,10,14,6, 0), 30);
         fileBackedTasksManager1.createSubTask(subtask3, epic2.getId());
-        fileBackedTasksManager1.getTasksById(task1.getId());
-        fileBackedTasksManager1.getTasksById(task2.getId());
+        //fileBackedTasksManager1.getTasksById(task1.getId());
+        //fileBackedTasksManager1.getTasksById(task2.getId());
         fileBackedTasksManager1.getEpicsById(epic1.getId());
         fileBackedTasksManager1.getEpicsById(epic2.getId());
         FileBackedTasksManager fileBackedTasksManager2 = FileBackedTasksManager.loadFromFile(new File("data\\csv.csv"));
@@ -82,7 +83,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                     break;
                  }
                 String[] type = line.split(",");
-                String typeTask = type[3];
+                String typeTask = type[1];
                 switch (typeTask){
                     case "TASK" :
                         Task task = CSVFormatter.taskFromString(lines[i]);
@@ -166,10 +167,14 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public Subtask createSubTask(Subtask subtask, int epicId) {
         if (subtask != null && super.checkId(epicId)) {
             super.createSubTask(subtask, epicId);
-            save();
+            try {
+                save();
+            } catch (ManagerSaveException e) {
+                e.printStackTrace();
+            }
             return subtask;
         }
-        return  null;
+        return null;
     }
 
     @Override
