@@ -3,14 +3,14 @@ package tasks;
 import managers.TaskType;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.time.LocalDateTime;
 
 public class Epic extends Task {
 
     private final ArrayList<Integer> epicSubtasks = new ArrayList<>();
 
-    public Epic(int id, String name, String description, TaskType taskType) {
-        super(id, name, description, taskType, null);
+    public Epic(int id, String name, String description, TaskType taskType, Status status, LocalDateTime startTime, long duration) {
+        super(id, name, description, taskType, status, startTime, duration);
     }
 
     public Epic(String name, String description, TaskType taskType) {
@@ -25,13 +25,15 @@ public class Epic extends Task {
         epicSubtasks.add(epicSubtask);
     }
 
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
     public void removeIdFromSubtasksIdList(int subtaskId) {
-        Iterator<Integer> iterator = epicSubtasks.iterator();
-        while (iterator.hasNext()) {
-            Integer element = iterator.next();
-            if (element == subtaskId) {
-                iterator.remove();
-            }
-        }
+        epicSubtasks.removeIf(element -> element == subtaskId);
     }
 }
