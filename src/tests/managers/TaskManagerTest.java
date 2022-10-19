@@ -11,138 +11,141 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public abstract class TaskManagerTest <T extends TaskManager>  {
+public abstract class TaskManagerTest<T extends TaskManager> {
 
     protected T taskManager;
     protected Task task;
     protected Epic epic;
     protected Subtask subtask;
+    HistoryManager historyManager;
 
     protected void taskManagerSetUp() {
-        task = new Task(1,"Task name", "Task description", TaskType.TASK, Status.NEW,
-                LocalDateTime.of(2022,10,13,10, 0), 40);
+        task = new Task(1,"Task name", "Task description", TaskType.TASK, Status.NEW, LocalDateTime.of(2022,10,18,10, 0), 90);
         taskManager.createTask(task);
 
-        epic = new Epic(2,"Epic name", "Epic description", TaskType.EPIC, Status.NEW,
-                LocalDateTime.of(2022,10,13,10, 0), 40);
+        epic = new Epic(2,"Epic name", "Epic description", TaskType.EPIC, Status.NEW, LocalDateTime.of(2022,10,19,10, 0), 90);
         taskManager.createEpic(epic);
 
-        subtask = new Subtask(3,"Subtask name", "Subtask description",epic.getId(), TaskType.SUBTASK, Status.NEW,
-                LocalDateTime.of(2022,10,13,10, 0), 40);
+        subtask = new Subtask(3,"Subtask name", "Subtask description",epic.getId(), TaskType.SUBTASK, Status.NEW, LocalDateTime.of(2022,10,20,10, 0), 90);
         taskManager.createSubTask(subtask, epic.getId());
-    }
 
+        historyManager = new InMemoryHistoryManager();
+        historyManager.add(task);
+        historyManager.add(epic);
+        historyManager.add(subtask);
+
+    }
     @Test
-    public void getTasksTest() {
+    public void getTaskListTest() {
         ArrayList<Task> taskList = new ArrayList<> (taskManager.getTasks());
         assertEquals(task, taskList.get(0), "getTaskListTest - не пройден");
     }
 
     @Test
-    public void getTasksTestWhenListIsEmptyTest() {
-        ArrayList<Task> taskList = new ArrayList<>(taskManager.getTasks());
-        assertEquals(task, taskList.get(0), "getTasksTest - не пройден");
-        taskManager.removeAllTasks();
-        taskList = new ArrayList<>(taskManager.getTasks());
-        assertTrue(taskList.isEmpty(), "getTasksTestWhenListIsEmpty - не пройден");
-    }
-
-    @Test
-    public void getSubTasksTest() {
-        ArrayList<Task> subtaskList = new ArrayList<> (taskManager.getSubTasks());
-        assertEquals(subtask, subtaskList.get(0), "getSubTasksTest - не пройден");
-    }
-
-    @Test
-    public void getSubTasksTestWhenListIsEmptyTest() {
-        ArrayList<Task> subtaskList = new ArrayList<> (taskManager.getSubTasks());
-        assertEquals(subtask, subtaskList.get(0), "getSubTasksTest - не пройден");
-        taskManager.removeAllSubTasks();
-        subtaskList = new ArrayList<> (taskManager.getSubTasks());
-        assertTrue(subtaskList.isEmpty(), "getSubtasksTestWhenListIsEmpty - не пройден");
-    }
-
-    @Test
-    public void getEpicsTest() {
-        ArrayList<Task> epicList = new ArrayList<> (taskManager.getEpics());
-        assertEquals(epic, epicList.get(0), "getSubTasksTest - не пройден");
-    }
-
-    @Test
-    public void getEpicsTestWhenListIsEmptyTest() {
-        ArrayList<Task> epicList = new ArrayList<> (taskManager.getEpics());
-        assertEquals(epic, epicList.get(0), "getSubTasksTest - не пройден");
-        taskManager.removeAllEpics();
-        epicList = new ArrayList<> (taskManager.getEpics());
-        assertTrue(epicList.isEmpty(), "getSubTasksTestWhenListIsEmpty - не пройден");
-    }
-
-    @Test
-    public void cleanTasksTest() {
+    public void getTaskListTestWhenListIsEmptyTest() {
         ArrayList<Task> taskList = new ArrayList<> (taskManager.getTasks());
-        assertEquals(task, taskList.get(0), "getTasksTest - не пройден");
+        assertEquals(task, taskList.get(0), "getTaskListTest - не пройден");
         taskManager.removeAllTasks();
         taskList = new ArrayList<> (taskManager.getTasks());
-        assertTrue(taskList.isEmpty(), "cleanTasksTest - не пройден");
+        assertTrue(taskList.isEmpty(), "getTaskListTestWhenListIsEmpty - не пройден");
     }
 
     @Test
-    public void cleanSubTasksTest() {
+    public void getSubtasksListTest() {
         ArrayList<Task> subtaskList = new ArrayList<> (taskManager.getSubTasks());
-        assertEquals(subtask, subtaskList.get(0), "getSubTasksTest - не пройден");
+        assertEquals(subtask, subtaskList.get(0), "getSubtasksListTest - не пройден");
+    }
+
+    @Test
+    public void getSubtasksListTestWhenListIsEmptyTest() {
+        ArrayList<Task> subtaskList = new ArrayList<> (taskManager.getSubTasks());
+        assertEquals(subtask, subtaskList.get(0), "getSubtasksListTest - не пройден");
         taskManager.removeAllSubTasks();
         subtaskList = new ArrayList<> (taskManager.getSubTasks());
-        assertTrue(subtaskList.isEmpty(), "cleanSubTaskTest - не пройден");
+        assertTrue(subtaskList.isEmpty(), "getSubtasksListTestWhenListIsEmpty - не пройден");
     }
 
     @Test
-    public void cleanEpicsTest() {
+    public void getEpicLisTest() {
         ArrayList<Task> epicList = new ArrayList<> (taskManager.getEpics());
-        assertEquals(epic, epicList.get(0), "getSubTasksTest - не пройден");
+        assertEquals(epic, epicList.get(0), "getSubtasksListTest - не пройден");
+    }
+
+    @Test
+    public void getEpicListTestWhenListIsEmptyTest() {
+        ArrayList<Task> epicList = new ArrayList<> (taskManager.getEpics());
+        assertEquals(epic, epicList.get(0), "getSubtasksListTest - не пройден");
         taskManager.removeAllEpics();
         epicList = new ArrayList<> (taskManager.getEpics());
-        assertTrue(epicList.isEmpty(), "cleanEpicsTest - не пройден");
+        assertTrue(epicList.isEmpty(), "getSubtasksListTestWhenListIsEmpty - не пройден");
     }
 
     @Test
-    public void getTasksByIdTest() {
-        assertEquals(task, taskManager.getTasksById(task.getId()), "getTasksByIdTest - не пройден");
+    public void cleanTaskListTest() {
+        ArrayList<Task> taskList = new ArrayList<> (taskManager.getTasks());
+        assertEquals(task, taskList.get(0), "getTaskListTest - не пройден");
+        taskManager.removeAllTasks();
+        taskList = new ArrayList<> (taskManager.getTasks());
+        assertTrue(taskList.isEmpty(), "cleanTaskListTest - не пройден");
     }
 
     @Test
-    public void getTasksByIdWhenWrongIdTest() {
-        assertNull(taskManager.getTasksById(0), "getTasksByIdWhenWrongIdTest - не пройден");
+    public void cleanSubtaskListTest() {
+        ArrayList<Task> subtaskList = new ArrayList<> (taskManager.getSubTasks());
+        assertEquals(subtask, subtaskList.get(0), "getSubtasksListTest - не пройден");
+        taskManager.removeAllSubTasks();
+        subtaskList = new ArrayList<> (taskManager.getSubTasks());
+        assertTrue(subtaskList.isEmpty(), "cleanSubtaskListTest - не пройден");
     }
 
     @Test
-    public void getEpicsByIdTest() {
-        assertEquals(epic, taskManager.getEpicsById(epic.getId()), "getEpicsByIdTest - не пройден");
+    public void cleanEpicListTest() {
+        ArrayList<Task> epicList = new ArrayList<> (taskManager.getEpics());
+        assertEquals(epic, epicList.get(0), "getSubtasksListTest - не пройден");
+        taskManager.removeAllEpics();
+        epicList = new ArrayList<> (taskManager.getEpics());
+        assertTrue(epicList.isEmpty(), "cleanEpicListTest - не пройден");
     }
 
     @Test
-    public void getSubTasksByIdTest() {
-        assertEquals(subtask, taskManager.getSubTasksById(subtask.getId()), "getSubTasksByIdTest - не пройден");
+    public void getTaskFromIdTest() {
+        assertEquals(task, taskManager.getTasksById(task.getId()), "getTaskFromIdTest - не пройден");
     }
 
     @Test
-    public void getSubTasksByIdWhenWrongIdTest() {
-        assertNull(taskManager.getSubTasksById(0), "getSubTasksByIdWhenWrongIdTest - не пройден");
+    public void getTaskFromIdWhenWrongIdTest() {
+        assertNull(taskManager.getTasksById(0), "getTaskFromIdWhenWrongIdTest - не пройден");
     }
 
     @Test
-    public void createTaskTest() {
+    public void getSubtaskFromIdTest() {
+        assertEquals(subtask, taskManager.getSubTasksById(subtask.getId()), "getSubtaskFromIdTest - не пройден");
+    }
+
+    @Test
+    public void getSubtaskFromIdWhenWrongIdTest() {
+        assertNull(taskManager.getSubTasksById(0), "getSubtaskFromIdWhenWrongIdTest - не пройден");
+    }
+
+    @Test
+    public void getEpicFromIdTest() {
+        assertEquals(epic, taskManager.getEpicsById(epic.getId()), "getEpicFromIdTest - не пройден");
+    }
+
+    @Test
+    public void creationTaskTest() {
         assertNotNull(task, "task не null - не пройден");
         assertTrue(task.getId() > 0 , "Присвоен некорректный Id");
         assertEquals(Status.NEW, task.getStatus(), "Присвоен некорректный статус");
     }
 
     @Test
-    public void createTaskWhenWrongInputData() {
-        assertNull(taskManager.createTask(null), "createTaskWhenWrongInputData - не пройден");
+    public void creationTaskWhenWrongInputData() {
+        assertNull(taskManager.createTask(null), "creationTaskWhenWrongInputData - не пройден");
     }
 
     @Test
-    public void createSubtaskTest() {
+    public void creationSubtaskTest() {
         assertNotNull(subtask, "subtask не null - не пройден");
         assertTrue(subtask.getId() > 0 , "Присвоен некорректный Id");
         assertEquals(Status.NEW, subtask.getStatus(), "Присвоен некорректный статус");
@@ -150,17 +153,17 @@ public abstract class TaskManagerTest <T extends TaskManager>  {
     }
 
     @Test
-    public void createSubTaskWhenWrongInputData() {
-        assertNull(taskManager.createSubTask(null, epic.getId()), "createSubTaskWhenWrongInputData - не пройден");
+    public void creationSubtaskWhenWrongInputData() {
+        assertNull(taskManager.createSubTask(null, epic.getId()), "creationTaskWhenWrongInputData - не пройден");
     }
 
     @Test
-    public void createSubTaskWhenWrongEpic() {
-        assertNull(taskManager.createSubTask(subtask, 0), "createSubTaskWhenWrongEpic - не пройден");
+    public void creationSubtaskWhenWrongEpic() {
+        assertNull(taskManager.createSubTask(subtask, 0), "creationSubtaskWhenWrongEpic - не пройден");
     }
 
     @Test
-    public void createEpicTest() {
+    public void creationEpicTest() {
         assertNotNull(epic, "epic не null - не пройден");
         assertTrue(epic.getId() > 0 , "Присвоен некорректный Id");
         assertEquals(Status.NEW, epic.getStatus(), "Присвоен некорректный статус");
@@ -177,21 +180,21 @@ public abstract class TaskManagerTest <T extends TaskManager>  {
     public void updateTaskWhenWrongInputDataTest() {
         assertEquals(Status.NEW, task.getStatus(), "начальный статус неверный");
         taskManager.updateTask(null, Status.DONE);
-        assertEquals(Status.NEW, task.getStatus(), "крайний статус неверный");
+        assertEquals(Status.NEW, task.getStatus(), "конечный статус неверный");
     }
 
     @Test
-    public void updateSubTaskTest() {
+    public void updateSubtaskTest() {
         assertEquals(Status.NEW, subtask.getStatus(), "начальный статус неверный");
         taskManager.updateSubTask(subtask, Status.DONE, epic.getId());
-        assertEquals(Status.DONE, subtask.getStatus(), "updateSubTaskTest - не пройден");
+        assertEquals(Status.DONE, subtask.getStatus(), "updateSubtaskTest - не пройден");
     }
 
     @Test
-    public void updateSubTaskWhenWrongInputDataTest() {
+    public void updateSubtaskWhenWrongInputDataTest() {
         assertEquals(Status.NEW, subtask.getStatus(), "начальный статус неверный");
         taskManager.updateSubTask(null, Status.DONE, epic.getId());
-        assertEquals(Status.NEW, subtask.getStatus(), "крайний статус неверный");
+        assertEquals(Status.NEW, subtask.getStatus(), "конечный статус неверный");
     }
 
     @Test
@@ -212,66 +215,71 @@ public abstract class TaskManagerTest <T extends TaskManager>  {
 
     @Test
     public void updateEpicTestWhenAllSubtaskDONE() {
-        Subtask subtask2 = new Subtask("Subtask2 name", "Subtask2 description",epic.getId(), TaskType.SUBTASK,
-                LocalDateTime.of(2022,10,13,10, 0), 40);
+        Subtask subtask2 = new Subtask("Subtask2 name", "Subtask2 description",epic.getId(), TaskType.SUBTASK, LocalDateTime.of(2022,10,3,10, 0), 90);
         taskManager.createSubTask(subtask2, epic.getId());
         taskManager.updateSubTask(subtask, Status.DONE, epic.getId());
         taskManager.updateSubTask(subtask2, Status.DONE, epic.getId());
-        assertEquals(Status.DONE, epic.getStatus(), "updateSubTaskTest - не пройден");
+        assertEquals(Status.DONE, epic.getStatus(), "updateSubtaskTest - не пройден");
     }
 
     @Test
     public void updateEpicTestWhenSubtaskDONEAndNEW() {
-        Subtask subtask2 = new Subtask("Subtask2 name", "Subtask2 description",epic.getId(), TaskType.SUBTASK,
-                LocalDateTime.of(2022,9,4,10, 0), 90);
+        Subtask subtask2 = new Subtask("Subtask2 name", "Subtask2 description",epic.getId(), TaskType.SUBTASK, LocalDateTime.of(2022,10,4,10, 0), 90);
         taskManager.createSubTask(subtask2, epic.getId());
         taskManager.updateSubTask(subtask2, Status.DONE, epic.getId());
-        assertEquals(Status.IN_PROGRESS, epic.getStatus(), "updateEpicTestWhenSubtaskDONEAndNEW - не пройден");
+        assertEquals(Status.NEW, epic.getStatus(), "updateEpicTestWhenSubtaskDONEAndNEW - не пройден");
     }
+
     @Test
     public void deleteTaskOfIdTest() {
-        assertEquals(task, taskManager.getTasksById(task.getId()), "getTasksTest в removeTaskByIdTest - не пройден");
-        taskManager.removeTaskById(task.getId());
+        assertEquals(task, taskManager.getTasksById(task.getId()), "getTaskListTest в deleteTaskOfIdTest - не пройден");
+        taskManager.removeAllTasks(); //Надо фиксить
         assertNull(taskManager.getTasksById(task.getId()), "deleteTaskOfIdTest - не пройден");
     }
+
     @Test
     public void deleteTaskOfIdWhenWrongIdTest() {
-        assertEquals(task, taskManager.getTasksById(task.getId()), "getTasksByIdTest в removeTaskByIdWhenWrongIdTest - не пройден");
+        assertEquals(task, taskManager.getTasksById(task.getId()), "getTaskFromIdTest в deleteTaskOfIdWhenWrongIdTest - не пройден");
         taskManager.removeTaskById(0);
-        assertEquals(task, taskManager.getTasksById(task.getId()), "removeTaskByIdIdWhenWrongIdTest - не пройден");
+        assertEquals(task, taskManager.getTasksById(task.getId()), "deleteTaskOfIdWhenWrongIdTest - не пройден");
     }
+
     @Test
-    public void removeSubTaskByIdTest() {
-        assertEquals(subtask, taskManager.getSubTasksById(subtask.getId()), "getSubTasksByIdTest в removeSubTaskByIdTest - не пройден");
-        taskManager.removeSubTaskById(subtask.getId());
-        assertNull(taskManager.getSubTasksById(subtask.getId()), "removeSubTaskByIdTest - не пройден");
+    public void deleteSubtaskOfIdTest() {
+        assertEquals(subtask, taskManager.getSubTasksById(subtask.getId()), "getSubtaskOfIdTest в deleteSubtaskOfIdTest - не пройден");
+        taskManager.removeAllSubTasks(); //Надо фиксить
+        assertNull(taskManager.getSubTasksById(subtask.getId()), "deleteSubtaskOfIdTest - не пройден");
     }
+
     @Test
-    public void removeSubTaskByIdWhenWrongIdTest() {
-        assertEquals(subtask, taskManager.getSubTasksById(subtask.getId()), "getSubTasksByIdTest в removeSubTaskByIdWhenWrongIdTest - не пройден");
+    public void deleteSubtaskOfIdWhenWrongIdTest() {
+        assertEquals(subtask, taskManager.getSubTasksById(subtask.getId()), "getSubtaskOfIdTest в deleteSubtaskOfIdWhenWrongIdTest - не пройден");
         taskManager.removeSubTaskById(0);
-        assertEquals(subtask,taskManager.getSubTasksById(subtask.getId()), "removeSubTaskByIddWhenWrongIdTest - не пройден");
+        assertEquals(subtask,taskManager.getSubTasksById(subtask.getId()), "deleteSubtaskOfIdWhenWrongIdTest - не пройден");
     }
+
     @Test
-    public void removeEpicByIdTest() {
-        assertEquals(epic, taskManager.getEpicsById(epic.getId()), "getEpicsByIdTest в deleteEpicOfIdTest - не пройден");
-        taskManager.removeEpicById(epic.getId());
-        assertNull(taskManager.getEpicsById(epic.getId()), "removeEpicByIdTest - не пройден");
+    public void deleteEpicOfIdTest() {
+        assertEquals(epic, taskManager.getEpicsById(epic.getId()), "getEpicOfIdTest в deleteEpicOfIdTest - не пройден");
+        taskManager.removeAllEpics(); //Надо фиксить
+        assertNull(taskManager.getEpicsById(epic.getId()), "deleteSubtaskOfIdTest - не пройден");
     }
+
     @Test
-    public void removeEpicByIdWhenWrongIdTest() {
-        assertEquals(epic, taskManager.getEpicsById(epic.getId()), "getEpicsByIdTest в removeEpicByIdWhenWrongIdTest - не пройден");
+    public void deleteEpicOfIdWhenWrongIdTest() {
+        assertEquals(epic, taskManager.getEpicsById(epic.getId()), "getEpicOfIdTest в deleteEpicOfIdWhenWrongIdTest - не пройден");
         taskManager.removeEpicById(0);
-        assertEquals(epic, taskManager.getEpicsById(epic.getId()), "removeEpicByIdWhenWrongIdTest - не пройден");
+        assertEquals(epic, taskManager.getEpicsById(epic.getId()), "deleteEpicOfIdWhenWrongIdTest - не пройден");
     }
+
     @Test
     public void getEpicSubtasksListTest() {
         ArrayList<Subtask> subtasks = new ArrayList<> (taskManager.getEpicSubtasksList(epic));
-        assertEquals(subtask, subtasks.get(0), "getEpicSubtasksList - не пройден");
+        assertEquals(subtask, subtasks.get(0), "getEpicSubtasksList - не пройден"); //Надо фиксить
     }
+
     @Test
     void getEpicSubtasksListWhenWrongInputDataTest() {
         assertNull(taskManager.getEpicSubtasksList(null));
     }
-
-    }
+}

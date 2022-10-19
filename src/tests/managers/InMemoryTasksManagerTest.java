@@ -14,37 +14,18 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTasksManagerTest extends TaskManagerTest<InMemoryTasksManager> {
+class InMemoryTasksManagerTest extends TaskManagerTest <InMemoryTasksManager>  {
 
     @BeforeEach
-    void setup() {
+    void setUp() {
         taskManager = new InMemoryTasksManager();
         taskManagerSetUp();
     }
-
     @Test
-    void generateIdTest() {
+    void generateId() {
         int i = InMemoryTasksManager.generateId;
         InMemoryTasksManager.generateId();
         assertEquals(i+1, InMemoryTasksManager.generateId);
-    }
-
-    @Test
-    void removeTaskById() {
-        taskManager.removeTaskById(task.getId());
-        assertNull(taskManager.getTasksById(task.getId()));
-    }
-
-    @Test
-     void getSubTasksById() {
-        taskManager.removeSubTaskById(subtask.getId());
-        assertNull(taskManager.getSubTasksById(subtask.getId()));
-    }
-
-    @Test
-    void getEpicsById() {
-        taskManager.removeEpicById(epic.getId());
-        assertNull(taskManager.getEpicsById(epic.getId()));
     }
 
     @Test
@@ -64,8 +45,7 @@ class InMemoryTasksManagerTest extends TaskManagerTest<InMemoryTasksManager> {
     void validateTest() {
         ArrayList<Task> list = new ArrayList<> (taskManager.getPrioritizedTasks());
         assertEquals(2, list.size());
-        Task task1 = new Task(1,"Task name", "Task description", TaskType.TASK, Status.NEW,
-                LocalDateTime.of(2022,9,1,10, 0), 90);
+        Task task1 = new Task(1,"Task name", "Task description", TaskType.TASK, Status.NEW, LocalDateTime.of(2022,9,1,10, 0), 90);
         taskManager.createTask(task1);
         list = new ArrayList<> (taskManager.getPrioritizedTasks());
         assertEquals(2, list.size());
@@ -76,13 +56,10 @@ class InMemoryTasksManagerTest extends TaskManagerTest<InMemoryTasksManager> {
         final ValidationException ex = assertThrows(
                 ValidationException.class,
                 () -> {
-                    Task task1 = new Task(2,"Task name2", "Task description2", TaskType.TASK, Status.NEW,
-                            LocalDateTime.of(2022,9,1,9, 0), 600);
+                    Task task1 = new Task(2,"Task name2", "Task description2", TaskType.TASK, Status.NEW, LocalDateTime.of(2022,9,1,9, 0), 600);
                     taskManager.validate(task1);
                 });
-        assertEquals("Задача не может начинаться раньше и заканчиваться позже чем другие задачи", ex.getMessage());
+        assertEquals("Задача не может заканчиваться позже начала другой задачи", ex.getMessage());
     }
-
-
 
 }

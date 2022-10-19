@@ -36,6 +36,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         //fileBackedTasksManager1.getTasksById(task2.getId());
         fileBackedTasksManager1.getEpicsById(epic1.getId());
         fileBackedTasksManager1.getEpicsById(epic2.getId());
+        fileBackedTasksManager1.removeSubTaskById(subtask1.getId()); // почему то перестал работать метод с удалением по айди....
         FileBackedTasksManager fileBackedTasksManager2 = FileBackedTasksManager.loadFromFile(new File("data\\csv.csv"));
         System.out.println(fileBackedTasksManager2.getTasks());
         System.out.println(fileBackedTasksManager2.getEpics());
@@ -101,7 +102,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             }
             if (history != null) {
                 for (Integer taskId : history) {
-                    tasksManager.historyManager.add(tasksManager.findTask(taskId));
+                    tasksManager.inMemoryHistoryManager.add(tasksManager.findTask(taskId));
                 }
             }
         } catch(IOException e) {
