@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class EpicTest {
 
     Epic epic;
-    InMemoryTasksManager inMemoryTasksManager = new InMemoryTasksManager();
+    private final InMemoryTasksManager inMemoryTasksManager = new InMemoryTasksManager();
 
     @BeforeEach
     public void  beForeEach() {
@@ -91,7 +91,7 @@ class EpicTest {
     }
 
     @Test
-    void getEpicSubtasksTest() {
+    public void getEpicSubtasksTest() {
         assertTrue(epic.getEpicSubtasks().isEmpty());
         Subtask subtask1 = new Subtask("sb name1", "sb1 description", epic.getId(), TaskType.SUBTASK,
                 LocalDateTime.of(2022,10,13,10, 0), 40);
@@ -103,7 +103,7 @@ class EpicTest {
     }
 
     @Test
-    void addSubtasksIdTest() {
+    public void addSubtasksIdTest() {
         assertTrue(epic.getEpicSubtasks().isEmpty());
         Subtask subtask1 = new Subtask("sb name1", "sb1 description", epic.getId(), TaskType.SUBTASK,
                 LocalDateTime.of(2022,10,13,10, 0), 40);

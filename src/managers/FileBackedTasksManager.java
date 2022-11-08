@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
     private final File file;
-    public FileBackedTasksManager (File file) {
+    protected FileBackedTasksManager (File file) {
         this.file = file;
     }
     public static void main (String[] args) {
@@ -43,7 +43,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         System.out.println(fileBackedTasksManager2.getSubTasks());
 
     }
-    public void save() throws ManagerSaveException {
+    protected void save() throws ManagerSaveException {
         File file = new File ("data\\csv.csv");
         try (BufferedWriter write = new BufferedWriter(new FileWriter(file))) {
             write.write(CSVFormatter.getHeader());
@@ -71,7 +71,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
     }
 
-    public static FileBackedTasksManager loadFromFile(File file)  {
+    protected static FileBackedTasksManager loadFromFile(File file)  {
         final FileBackedTasksManager tasksManager = new FileBackedTasksManager(file);
         try {
             String csv = Files.readString(file.toPath());

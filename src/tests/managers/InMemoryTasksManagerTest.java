@@ -17,19 +17,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryTasksManagerTest extends TaskManagerTest <InMemoryTasksManager>  {
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         taskManager = new InMemoryTasksManager();
         taskManagerSetUp();
     }
     @Test
-    void generateId() {
+    public void generateId() {
         int i = InMemoryTasksManager.generateId;
         InMemoryTasksManager.generateId();
         assertEquals(i+1, InMemoryTasksManager.generateId);
     }
 
     @Test
-    void getEpicSubtasksList() {
+    public void getEpicSubtasksList() {
         List<Subtask> list = taskManager.getEpicSubtasksList(epic);
         assertEquals(subtask, list.get(0));
     }
@@ -42,7 +42,7 @@ class InMemoryTasksManagerTest extends TaskManagerTest <InMemoryTasksManager>  {
     }
 
     @Test
-    void validateTest() {
+    public void validateTest() {
         ArrayList<Task> list = new ArrayList<> (taskManager.getPrioritizedTasks());
         assertEquals(2, list.size());
         Task task1 = new Task(1,"Task name", "Task description", TaskType.TASK, Status.NEW, LocalDateTime.of(2022,9,1,10, 0), 90);
@@ -52,7 +52,7 @@ class InMemoryTasksManagerTest extends TaskManagerTest <InMemoryTasksManager>  {
     }
 
     @Test
-    void ValidationExceptionTest() {
+    public void ValidationExceptionTest() {
         final ValidationException ex = assertThrows(
                 ValidationException.class,
                 () -> {

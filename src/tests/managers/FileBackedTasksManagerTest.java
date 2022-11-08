@@ -14,18 +14,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class FileBackedTasksManagerTest extends TaskManagerTest <FileBackedTasksManager> {
     private File file;
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         file = new File ("data\\csv.csv");
         taskManager = new FileBackedTasksManager(file);
         taskManagerSetUp();
     }
 
     @Test
-    void main() {
+    public void main() {
     }
 
     @Test
-    void saveTest()  {
+    public void saveTest()  {
     }
 
     @Test

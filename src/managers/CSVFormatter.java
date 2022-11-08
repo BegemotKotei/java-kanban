@@ -9,9 +9,9 @@ import java.time.format.DateTimeFormatter;
 
 public class CSVFormatter {
 
-    static DateTimeFormatter outputFormatter =  DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    static final private DateTimeFormatter outputFormatter =  DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-    public static List<Integer> historyFromString(String value) { //Метод восстановления менеджера из csv.
+    protected static List<Integer> historyFromString(String value) { //Метод восстановления менеджера из csv.
         List<Integer> result = new ArrayList<>();
         String[] lines = value.split(",");
         for(String line : lines) {
@@ -20,7 +20,7 @@ public class CSVFormatter {
         return result;
     }
 
-    public static Task taskFromString(String value) { //Метод создания task из строк.
+    protected static Task taskFromString(String value) { //Метод создания task из строк.
         String[] lines = value.split(",");
         int id = Integer.parseInt(lines[0]);
         TaskType taskType = typeFromString(lines[1]);
@@ -38,7 +38,7 @@ public class CSVFormatter {
         return task;
     }
 
-    public static Epic epicFromString(String value) { //Метод создания epic из строк.
+    protected static Epic epicFromString(String value) { //Метод создания epic из строк.
         String[] lines = value.split(",");
         int id = Integer.parseInt(lines[0]);
         TaskType taskType = typeFromString(lines[1]);
@@ -58,7 +58,7 @@ public class CSVFormatter {
         return epic;
     }
 
-    public static Subtask subtaskFromString(String value) { //Метод создания subtask из строк.
+    protected static Subtask subtaskFromString(String value) { //Метод создания subtask из строк.
         String[] lines = value.split(",");
         int id = Integer.parseInt(lines[0]);
         TaskType taskType = typeFromString(lines[1]);
@@ -76,7 +76,7 @@ public class CSVFormatter {
         subtask.setEndTime(endTime);
         return subtask;
     }
-    public static TaskType typeFromString(String string) {
+    protected static TaskType typeFromString(String string) {
         switch (string) {
             case "TASK":
                 return TaskType.TASK;
@@ -87,7 +87,7 @@ public class CSVFormatter {
         }
         return null;
     }
-    public static Status statusFromString (String string) {
+    protected static Status statusFromString (String string) {
         switch (string) {
             case "NEW":
                 return Status.NEW;
@@ -98,7 +98,7 @@ public class CSVFormatter {
         }
         return null;
     }
-    public static String getHeader() {
+    protected static String getHeader() {
         return  "id,TaskType,name,status,description,startTime,duration,endTime,epicId";
     }
     static String historyToString(HistoryManager manager) { //Метод сохранения задачи в строку.
@@ -111,19 +111,19 @@ public class CSVFormatter {
         return String.join(",", ids);
     }
 
-    public static String taskToString(Task task) {
+    protected static String taskToString(Task task) {
         return String.format("%s,%s,%s,%s,%s,%s,%s,%s", task.getId(), task.getTaskType(), task.getName(), task.getStatus(),
                 task.getDescription(), task.getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 task.getDuration(), task.getEndTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
     }
 
-    public static String epicToString (Epic epic) {
+    protected static String epicToString (Epic epic) {
         return String.format("%s,%s,%s,%s,%s,%s,%s,%s", epic.getId(), epic.getTaskType(), epic.getName(), epic.getStatus(),
                 epic.getDescription(), epic.getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 epic.getDuration(), epic.getEndTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
     }
 
-    public static String subtaskToString (Subtask subtask) {
+    protected static String subtaskToString (Subtask subtask) {
         return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s", subtask.getId(), subtask.getTaskType(), subtask.getName(), subtask.getStatus(),
                 subtask.getDescription(), subtask.getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 subtask.getDuration(), subtask.getEndTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), subtask.getIdEpic());

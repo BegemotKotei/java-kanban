@@ -17,7 +17,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     protected Task task;
     protected Epic epic;
     protected Subtask subtask;
-    HistoryManager historyManager;
 
     protected void taskManagerSetUp() {
         task = new Task(1,"Task name", "Task description", TaskType.TASK, Status.NEW, LocalDateTime.of(2022,10,18,10, 0), 90);
@@ -29,7 +28,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         subtask = new Subtask(3,"Subtask name", "Subtask description",epic.getId(), TaskType.SUBTASK, Status.NEW, LocalDateTime.of(2022,10,20,10, 0), 90);
         taskManager.createSubTask(subtask, epic.getId());
 
-        historyManager = new InMemoryHistoryManager();
+        HistoryManager historyManager = new InMemoryHistoryManager();
         historyManager.add(task);
         historyManager.add(epic);
         historyManager.add(subtask);

@@ -13,14 +13,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HistoryManagerTest {
 
-    HistoryManager historyManager;
-    InMemoryTasksManager inMemoryTaskManager;
+    private HistoryManager historyManager;
+    private InMemoryTasksManager inMemoryTaskManager;
     private Task task;
     private Epic epic;
     private Subtask subtask;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         historyManager = new InMemoryHistoryManager();
         inMemoryTaskManager = new InMemoryTasksManager();
         task = new Task("Task name", "Task description", TaskType.TASK, LocalDateTime.of(2022,10,13,10, 0), 40);
@@ -58,7 +58,7 @@ class HistoryManagerTest {
     }
 
     @Test
-    void removeFirst() {
+    public void removeFirst() {
         historyManager.add(task);
         historyManager.add(subtask);
         historyManager.add(epic);
