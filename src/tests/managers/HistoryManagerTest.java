@@ -23,6 +23,7 @@ class HistoryManagerTest {
     public void setUp() {
         historyManager = new InMemoryHistoryManager();
         inMemoryTaskManager = new InMemoryTasksManager();
+
         task = new Task("Task name", "Task description", TaskType.TASK, LocalDateTime.of(2022,10,13,10, 0), 40);
         inMemoryTaskManager.createTask(task);
 

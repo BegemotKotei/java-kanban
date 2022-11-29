@@ -33,6 +33,12 @@ class TaskTest {
     }
 
     @Test
+    void getIdTest() {
+        task.setId(1);
+        assertEquals(1, task.getId(), "getIdTest");
+    }
+
+    @Test
     void setIdTest() {
         task.setId(2);
         assertEquals(2, task.getId(), "setIdTest - не пройден");
@@ -58,6 +64,7 @@ class TaskTest {
 
     @Test
     void testToStringTest() {
+        task.setId(1);
         assertEquals("1,TASK,Task Name,NEW,Description task,2022-10-13T10:00:00,60,2022-10-13T11:00:00", task.toString(), "testToStringTest - не пройден");
     }
 

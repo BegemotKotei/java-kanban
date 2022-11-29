@@ -1,6 +1,5 @@
 package managers;
 
-import exception.ValidationException;
 import tasks.Task;
 import tasks.Epic;
 import tasks.Subtask;
@@ -24,8 +23,8 @@ public interface TaskManager {
 
     // Получение задач по id.
     Task getTasksById(int id);
-    Epic getEpicsById(int id);
-    Subtask getSubTasksById(int id);
+    Task getEpicsById(int id);
+    Task getSubTasksById(int id);
 
     // Создание задачи
     Task createTask(Task task);

@@ -1,6 +1,8 @@
 package managers;
 
+import exception.ManagerSaveException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import tasks.Task;
@@ -42,5 +44,17 @@ class FileBackedTasksManagerTest extends TaskManagerTest <FileBackedTasksManager
         assertEquals(task.getStartTime(), list.get(0).getStartTime(), "loadFromFileTest - не пройден");
         assertEquals(task.getEndTime(), list.get(0).getEndTime(), "loadFromFileTest - не пройден");
 
+    }
+
+    @Disabled
+    @Test
+    void ManagerSaveExceptionTest() {
+        final ManagerSaveException ex = assertThrows(
+                ManagerSaveException.class,
+                () -> {
+                    FileBackedTasksManager f = new FileBackedTasksManager(new File("data\\csv.csv"));
+                    f.save();
+                });
+        assertEquals("", ex.getMessage());
     }
 }

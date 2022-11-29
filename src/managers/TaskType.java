@@ -1,7 +1,16 @@
 package managers;
 
 public enum TaskType {
-    TASK,
-    EPIC,
-    SUBTASK
+    TASK ("TASK"), EPIC("EPIC"), SUBTASK("SUBTASK");
+
+    final String name;
+
+    TaskType(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

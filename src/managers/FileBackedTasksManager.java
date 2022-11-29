@@ -32,8 +32,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBackedTasksManager1.createEpic(epic2);
         Subtask subtask3 = new Subtask("Закупить стройматериалы", "Найти нужные материалы и сделать стол", 2, TaskType.SUBTASK, LocalDateTime.of(2022,10,14,6, 0), 30);
         fileBackedTasksManager1.createSubTask(subtask3, epic2.getId());
-        //fileBackedTasksManager1.getTasksById(task1.getId());
-        //fileBackedTasksManager1.getTasksById(task2.getId());
+        /*fileBackedTasksManager1.getTasksById(task1.getId());
+        fileBackedTasksManager1.getTasksById(task2.getId());*/
         fileBackedTasksManager1.getEpicsById(epic1.getId());
         fileBackedTasksManager1.getEpicsById(epic2.getId());
         fileBackedTasksManager1.removeSubTaskById(subtask1.getId()); // почему то перестал работать метод с удалением по айди....
