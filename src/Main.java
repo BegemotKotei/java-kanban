@@ -1,27 +1,56 @@
+import adapters.InstantAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import exception.*;
 import managers.*;
 import server.KVServer;
-import tasks.Task;
+import tasks.*;
 
-import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public class Main {
-    public static void main(String[] args) throws IOException, ManagerSaveException, ManagerLoadException {
+    //Запускает, но ругается на gson и прочее, пытаюсь понять в чём дело:(Можно подсказку, если есть идеи?
+    // Мне кажется, просто, неправильно импортировл его:д
+    public static void main(String[] args) throws ManagerSaveException {
 
-        KVServer kvServer = Managers.getDefaultKVServer();
-        kvServer.start();
-        HttpTasksManager httpTaskManager = new HttpTasksManager(KVServer.PORT);
-        Task task1 = new Task("Забрать посылку","Сходить на почту и забрать посылку", TaskType.TASK, LocalDateTime.of(2022,9,1,10, 0), 90);
-        httpTaskManager.createTask(task1);
-        httpTaskManager.save();
+        KVServer server;
+        try {
+            Gson gson = new GsonBuilder().registerTypeAdapter(Instant.class, new InstantAdapter()).create();
 
-        httpTaskManager.load();
+            server = new KVServer();
+            server.start();
+            HistoryManager historyManager = Managers.getDefaultHistory();
+            TaskManager httpTaskManager = Managers.getDefault();
 
-        /*new KVServer().start();   
-        KVTaskClient kvTaskClient = new KVTaskClient(8078);
-        kvTaskClient.put("1", "{\\\"name\\\":\\\"Забрать посылку\\\",\\\"description\\\":\\\"Сходить на почту и забрать посылку\\\",\\\"id\\\":1,\\\"status\\\":\\\"NEW\\\",\\\"typeTask\\\":\\\"TASK\\\",\\\"startTime\\\":{\\\"date\\\":{\\\"year\\\":2022,\\\"month\\\":9,\\\"day\\\":1},\\\"time\\\":{\\\"hour\\\":10,\\\"minute\\\":0,\\\"second\\\":0,\\\"nano\\\":0}},\\\"duration\\\":90}");
-        String str = kvTaskClient.load("1");*/
+            Task task1 = new Task(
+                    "Забрать книги","Поехать в пункт выдачи", TaskType.TASK,
+                    LocalDateTime.of(2022,11,13,12, 30), 50);
+            httpTaskManager.createTask(task1);
+
+            Epic epic1 = new Epic("Почистить пк", "Чистка пк", TaskType.EPIC);
+            httpTaskManager.createEpic(epic1);
+
+            Subtask subtask1 = new Subtask("Купить термопасту", "Сходить в днс", 1, TaskType.SUBTASK,
+                    LocalDateTime.of(2022,10,13,10, 0), 20);
+            httpTaskManager.createSubTask(subtask1, epic1.getId());
+
+
+            httpTaskManager.getTasksById(task1.getId());
+            httpTaskManager.getEpicsById(epic1.getId());
+            httpTaskManager.getSubTasksById(subtask1.getId());
+
+            System.out.println("Печать всех задач");
+            System.out.println(gson.toJson(httpTaskManager.getTasks()));
+            System.out.println("Печать всех эпиков");
+            System.out.println(gson.toJson(httpTaskManager.getEpics()));
+            System.out.println("Печать всех подзадач");
+            System.out.println(gson.toJson(httpTaskManager.getSubTasks()));
+            System.out.println("Загруженный менеджер");
+            System.out.println(httpTaskManager);
+            server.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
+    }
