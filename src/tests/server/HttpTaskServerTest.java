@@ -2,7 +2,8 @@ package server;
 
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 
 import managers.Managers;
 import managers.FileBackedTasksManager;
@@ -10,36 +11,51 @@ import managers.TaskType;
 
 import tasks.*;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpTaskServerTest {
 
-    private HttpTaskServer server;
-    private FileBackedTasksManager fileBackedTasksManager;
+    private static HttpTaskServer server;
+    private static KVServer kvServer;
+    private static FileBackedTasksManager fileBackedTasksManager;
 
     private Task task;
     private Subtask subtask;
     private Epic epic;
 
-    Gson gson = Managers.getGson();
+    private static final String TASK_URL = "http://localhost:8080/tasks/task/";
+    private static final String EPIC_URL = "http://localhost:8080/tasks/epic/";
+    private static final String SUBTASK_URL = "http://localhost:8080/tasks/subtask/";
 
+    private Gson gson = Managers.getGson();
+
+    @BeforeAll
+    static void startServer() {
+        try {
+            kvServer = new KVServer();
+            kvServer.start();
+            server = new HttpTaskServer();
+            server.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @BeforeEach
-    void setUp() throws IOException {
-        server = new HttpTaskServer();
+    void setUp() {
         fileBackedTasksManager = Managers.getDefaultFileBackedTasks();
 
         task = new Task(1,"Task name", "Task description", TaskType.TASK, Status.NEW, LocalDateTime.of(2022,9,1,10, 0), 90);
@@ -50,80 +66,480 @@ class HttpTaskServerTest {
 
         subtask = new Subtask(3,"Subtask name", "Subtask description",epic.getId(), TaskType.SUBTASK, Status.NEW, LocalDateTime.of(2022,9,3,10, 0), 90);
         fileBackedTasksManager.createSubTask(subtask, epic.getId());
-        server.start();
     }
     @AfterEach
     void tearDown() {
         server.stop();
+        kvServer.stop();
     }
 
     @Test
-    void getTasks() throws IOException, InterruptedException {
+    void shouldGetTasks() {
         HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks/task");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        URI url = URI.create(TASK_URL);
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200,response.statusCode());
-
-        Type taskType = new TypeToken<ArrayList<Task>>() {
-        }.getType();
-
-        List<Task> list = gson.fromJson(response.body(), taskType);
-        assertNotNull(list, "Задачи не возвращаются");
-        assertEquals(1, list.size(), "Не верное количество задач");
-
-    }
-
-    @Test
-    void getTaskById() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks/task?id=1");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200,response.statusCode());
-
-        Type taskType = new TypeToken<Task>() {
-        }.getType();
-
-        Task received = gson.fromJson(response.body(), taskType);
-        assertNotNull(received, "Задачи не возвращаются");
-
-        //assertEquals(task.getId(), received.getId(), "getTaskById - не пройден");
-        assertEquals(task.getName(), received.getName(), "getTaskById - не пройден");
-        assertEquals(task.getStatus(), received.getStatus(), "getTaskById - не пройден");
-        assertEquals(task.getDescription(), received.getDescription(), "getTaskById - не пройден");
-        assertEquals(task.getStartTime(), received.getStartTime(), "getTaskById - не пройден");
-        assertEquals(task.getEndTime(), received.getEndTime(), "getTaskById - не пройден");
-    }
-    @Test
-    void creationTask() throws IOException, InterruptedException {
-        Task task2 = new Task("Task name2", "Task description2", TaskType.TASK, LocalDateTime.of(2022,9,1,10, 0), 90);
-        fileBackedTasksManager.createTask(task2);
-
-        String str = gson.toJson(task2);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks/task");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(str))
-                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task)))
                 .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200,response.statusCode());
-
-
-        client = HttpClient.newHttpClient();
-        url = URI.create("http://localhost:8080/tasks/task?id=4");
-        request = HttpRequest.newBuilder().uri(url).GET().build();
-
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200,response.statusCode());
-
-
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+            request = HttpRequest.newBuilder().uri(url).GET().build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(200, response.statusCode());
+            JsonArray arrayTasks = JsonParser.parseString(response.body()).getAsJsonArray();
+            assertEquals(1, arrayTasks.size());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
+    @Test
+    void shouldGetEpics() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(EPIC_URL);
 
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .build();
+
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+            request = HttpRequest.newBuilder().uri(url).GET().build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(200, response.statusCode());
+            JsonArray arrayTasks = JsonParser.parseString(response.body()).getAsJsonArray();
+            assertEquals(1, arrayTasks.size());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldGetSubtasksTest() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(EPIC_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(201, postResponse.statusCode(), "POST запрос");
+            if (postResponse.statusCode() == 201) {
+                int epicId = Integer.parseInt(postResponse.body());
+                epic.setId(epicId);
+                url = URI.create(SUBTASK_URL);
+
+                request = HttpRequest.newBuilder()
+                        .uri(url)
+                        .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subtask)))
+                        .build();
+
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+                request = HttpRequest.newBuilder().uri(url).GET().build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                assertEquals(200, response.statusCode());
+                JsonArray arrayTasks = JsonParser.parseString(response.body()).getAsJsonArray();
+                assertEquals(1, arrayTasks.size());
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldGetTaskById() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(TASK_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(201, postResponse.statusCode(), "POST запрос");
+            if (postResponse.statusCode() == 201) {
+                int id = Integer.parseInt(postResponse.body());
+                task.setId(id);
+                url = URI.create(TASK_URL + "?id=" + id);
+                request = HttpRequest.newBuilder().uri(url).GET().build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                assertEquals(200, response.statusCode());
+                Task responseTask = gson.fromJson(response.body(), Task.class);
+                assertEquals(task, responseTask);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldGetEpicById() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(EPIC_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(201, postResponse.statusCode(), "POST запрос");
+            if (postResponse.statusCode() == 201) {
+                int id = Integer.parseInt(postResponse.body());
+                epic.setId(id);
+                url = URI.create(EPIC_URL + "?id=" + id);
+                request = HttpRequest.newBuilder().uri(url).GET().build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                assertEquals(200, response.statusCode());
+                Epic responseTask = gson.fromJson(response.body(), Epic.class);
+                assertEquals(epic, responseTask);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldGetSubtaskById() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(EPIC_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(201, postResponse.statusCode(), "POST запрос");
+            if (postResponse.statusCode() == 201) {
+                int epicId = Integer.parseInt(postResponse.body());
+                epic.setId(epicId);
+                url = URI.create(SUBTASK_URL);
+
+                request = HttpRequest.newBuilder()
+                        .uri(url)
+                        .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subtask)))
+                        .build();
+                postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                assertEquals(201, postResponse.statusCode(), "POST запрос");
+                if (postResponse.statusCode() == 201) {
+                    int id = Integer.parseInt(postResponse.body());
+                    subtask.setId(id);
+                    url = URI.create(SUBTASK_URL + "?id=" + id);
+                    request = HttpRequest.newBuilder().uri(url).GET().build();
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    assertEquals(200, response.statusCode());
+                    Subtask responseTask = gson.fromJson(response.body(), Subtask.class);
+                    assertEquals(subtask, responseTask);
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldUpdateTask() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(TASK_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (postResponse.statusCode() == 201) {
+                int id = Integer.parseInt(postResponse.body());
+                task.setStatus(Status.IN_PROGRESS);
+                request = HttpRequest.newBuilder()
+                        .uri(url)
+                        .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task)))
+                        .build();
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                url = URI.create(TASK_URL + "?id=" + id);
+                request = HttpRequest.newBuilder().uri(url).GET().build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                assertEquals(200, response.statusCode());
+                Task responseTask = gson.fromJson(response.body(), Task.class);
+                assertEquals(task, responseTask);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldUpdateEpic() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(EPIC_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (postResponse.statusCode() == 201) {
+                int id = Integer.parseInt(postResponse.body());
+                epic.setStatus(Status.IN_PROGRESS);
+                request = HttpRequest.newBuilder()
+                        .uri(url)
+                        .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                        .build();
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                url = URI.create(EPIC_URL + "?id=" + id);
+                request = HttpRequest.newBuilder().uri(url).GET().build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                assertEquals(200, response.statusCode());
+                Epic responseTask = gson.fromJson(response.body(), Epic.class);
+                assertEquals(epic, responseTask);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldUpdateSubtask() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(EPIC_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(201, postResponse.statusCode(), "POST запрос");
+            if (postResponse.statusCode() == 201) {
+                int epicId = Integer.parseInt(postResponse.body());
+                epic.setId(epicId);
+                url = URI.create(SUBTASK_URL);
+
+                request = HttpRequest.newBuilder()
+                        .uri(url)
+                        .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subtask)))
+                        .build();
+                postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (postResponse.statusCode() == 201) {
+                    int id = Integer.parseInt(postResponse.body());
+                    subtask.setStatus(Status.IN_PROGRESS);
+                    request = HttpRequest.newBuilder()
+                            .uri(url)
+                            .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subtask)))
+                            .build();
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                    url = URI.create(SUBTASK_URL + "?id=" + id);
+                    request = HttpRequest.newBuilder().uri(url).GET().build();
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    assertEquals(200, response.statusCode());
+                    Subtask responseTask = gson.fromJson(response.body(), Subtask.class);
+                    assertEquals(subtask, responseTask);
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldDeleteTasks() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(TASK_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task)))
+                .build();
+
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+            request = HttpRequest.newBuilder().uri(url).DELETE().build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(204, response.statusCode());
+            request = HttpRequest.newBuilder().uri(url).GET().build();
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            JsonArray arrayTasks = JsonParser.parseString(response.body()).getAsJsonArray();
+            assertEquals(0, arrayTasks.size());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldDeleteEpics() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(EPIC_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .build();
+
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+            request = HttpRequest.newBuilder().uri(url).DELETE().build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(204, response.statusCode());
+            request = HttpRequest.newBuilder().uri(url).GET().build();
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(200, response.statusCode());
+            JsonArray arrayTasks = JsonParser.parseString(response.body()).getAsJsonArray();
+            assertEquals(0, arrayTasks.size());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldDeleteSubtasks() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(EPIC_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(201, postResponse.statusCode(), "POST запрос");
+            if (postResponse.statusCode() == 201) {
+                int epicId = Integer.parseInt(postResponse.body());
+                epic.setId(epicId);
+                url = URI.create(SUBTASK_URL);
+
+                request = HttpRequest.newBuilder()
+                        .uri(url)
+                        .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subtask)))
+                        .build();
+
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+                request = HttpRequest.newBuilder().uri(url).DELETE().build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                assertEquals(204, response.statusCode());
+                request = HttpRequest.newBuilder().uri(url).GET().build();
+                response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                assertEquals(200, response.statusCode());
+                JsonArray arrayTasks = JsonParser.parseString(response.body()).getAsJsonArray();
+                assertEquals(0, arrayTasks.size());
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldDeleteTaskById() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(TASK_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            int id = Integer.parseInt(postResponse.body());
+            url = URI.create(TASK_URL + "?id=" + id);
+            request = HttpRequest.newBuilder().uri(url).DELETE().build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(204, response.statusCode());
+
+            request = HttpRequest.newBuilder().uri(url).GET().build();
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals("Задача с данным id не найдена", response.body());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    void shouldDeleteEpicById() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(EPIC_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(201, postResponse.statusCode(), "POST запрос");
+            if (postResponse.statusCode() == 201) {
+                int id = Integer.parseInt(postResponse.body());
+                url = URI.create(EPIC_URL + "?id=" + id);
+                request = HttpRequest.newBuilder().uri(url).DELETE().build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                assertEquals(204, response.statusCode());
+
+                request = HttpRequest.newBuilder().uri(url).GET().build();
+                response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                assertEquals("Эпик с данным id не найден", response.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void shouldDeleteSubtaskById() {
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create(EPIC_URL);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .build();
+
+        try {
+            HttpResponse<String> postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(201, postResponse.statusCode(), "POST запрос");
+            if (postResponse.statusCode() == 201) {
+                url = URI.create(SUBTASK_URL);
+
+                request = HttpRequest.newBuilder()
+                        .uri(url)
+                        .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subtask)))
+                        .build();
+                postResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                assertEquals(201, postResponse.statusCode(), "POST запрос");
+                if (postResponse.statusCode() == 201) {
+                    int id = Integer.parseInt(postResponse.body());
+                    subtask.setId(id);
+                    url = URI.create(SUBTASK_URL + "?id=" + id);
+                    request = HttpRequest.newBuilder().uri(url).DELETE().build();
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    assertEquals(204, response.statusCode());
+
+                    request = HttpRequest.newBuilder().uri(url).GET().build();
+                    response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    assertEquals("Подзадача с данным id не найдена", response.body());
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public abstract class TaskManagerTest<T extends TaskManager> {
+public abstract class TaskManagerTest <T extends TaskManager> {
 
     protected T taskManager;
     protected Task task;
