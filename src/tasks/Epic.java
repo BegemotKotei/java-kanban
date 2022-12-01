@@ -1,39 +1,65 @@
 package tasks;
 
-import managers.TaskType;
-
+import java.time.Instant;
 import java.util.ArrayList;
-import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 public class Epic extends Task {
+    private final List<Integer> subtaskIds = new ArrayList<>();
+    private transient Instant endTime;
 
-    private final ArrayList<Integer> epicSubtasks = new ArrayList<>();
-
-    public Epic(int id, String name, String description, TaskType taskType, Status status, LocalDateTime startTime, long duration) {
-        super(id, name, description, taskType, status, startTime, duration);
+    public Epic(String description, String name, Status status) {
+        super(description, name, status);
     }
 
-    public Epic(String name, String description, TaskType taskType) {
-        super(name, description, taskType);
+    public Epic(String description, String name, Status status, Instant startTime, long duration) {
+        super(description, name, status, startTime, duration);
+        this.endTime = super.getEndTime();
     }
 
-    public ArrayList<Integer> getEpicSubtasks() {
-        return epicSubtasks;
+    public List<Integer> getSubtaskIds() {
+        return subtaskIds;
     }
 
-    public void addSubtaskId(int epicSubtask) {
-        epicSubtasks.add(epicSubtask);
+    public void setSubtaskIds(int id) {
+        subtaskIds.add(id);
     }
 
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
+    @Override
+    public Instant getEndTime() {
+        return endTime;
     }
 
-    public void setDuration(long duration) {
-        this.duration = duration;
+    public void setEndTime(Instant endTime) {
+        this.endTime = endTime;
     }
 
-    public void removeIdFromSubtasksIdList(int subtaskId) {
-        epicSubtasks.removeIf(element -> element == subtaskId);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Epic epic = (Epic) o;
+        return Objects.equals(subtaskIds, epic.subtaskIds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), subtaskIds);
+    }
+
+    @Override
+    public String toString() {
+        return "Epic{" +
+                "subtaskIds=" + subtaskIds +
+                ", description='" + getDescription() + '\'' +
+                ", id=" + getId() +
+                ", name='" + getName() + '\'' +
+                ", status=" + getStatus() + '\'' +
+                ", startTime='" + getStartTime().toEpochMilli() + '\'' +
+                ", endTime='" + getEndTime().toEpochMilli() + '\'' +
+                ", duration='" + getDuration() +
+                '}';
     }
 }

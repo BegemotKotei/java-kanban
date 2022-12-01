@@ -1,60 +1,66 @@
 package managers;
 
-import exception.ManagerSaveException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
+import tasks.Status;
+import tasks.Epic;
 import tasks.Task;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 
-import java.util.ArrayList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class FileBackedTasksManagerTest extends TaskManagerTest <FileBackedTasksManager> {
-    private File file;
+class FileBackedTasksManagerTest extends TaskManagerTest<InMemoryTasksManager> {
+    public static final Path path = Path.of("data\\csv.csv");
+    File file = new File(String.valueOf(path));
     @BeforeEach
-    public void setUp() {
-        file = new File ("data\\csv.csv");
-        taskManager = new FileBackedTasksManager(file);
-        taskManagerSetUp();
+    public void beforeEach() {
+        manager = new FileBackedTasksManager(Managers.getDefaultHistory(), file);
+    }
+
+    @AfterEach
+    public void afterEach() {
+        try {
+            Files.delete(path);
+        } catch (IOException exception) {
+            System.out.println(exception.getMessage());
+        }
     }
 
     @Test
-    public void main() {
+    public void shouldCorrectlySaveAndLoad() {
+        Task task = new Task("Description", "Title", Status.NEW, Instant.now(), 0);
+        manager.createTask(task);
+        Epic epic = new Epic("Description", "Title", Status.NEW, Instant.now(), 0);
+        manager.createEpic(epic);
+        FileBackedTasksManager fileManager = new FileBackedTasksManager(Managers.getDefaultHistory(), file);
+        fileManager.loadFromFile();
+        assertEquals(List.of(task), manager.getTasks());
+        assertEquals(List.of(epic), manager.getEpics());
     }
 
     @Test
-    public void saveTest()  {
+    public void shouldSaveAndLoadEmptyTasksEpicsSubtasks() {
+        FileBackedTasksManager fileManager = new FileBackedTasksManager(Managers.getDefaultHistory(), file);
+        fileManager.save();
+        fileManager.loadFromFile();
+        assertEquals(Collections.EMPTY_LIST, manager.getTasks());
+        assertEquals(Collections.EMPTY_LIST, manager.getEpics());
+        assertEquals(Collections.EMPTY_LIST, manager.getSubTasks());
     }
 
     @Test
-    public void loadFromFileTest()  {
-        taskManager.getTasksById(task.getId());
-        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
-
-        ArrayList<Task> list = fileBackedTasksManager.getTasks();
-        assertNotNull(list,"лист не null");
-        assertEquals(task.getId(), list.get(0).getId(), "loadFromFileTest - не пройден");
-        assertEquals(task.getName(), list.get(0).getName(), "loadFromFileTest - не пройден");
-        assertEquals(task.getStatus(), list.get(0).getStatus(), "loadFromFileTest - не пройден");
-        assertEquals(task.getDescription(), list.get(0).getDescription(), "loadFromFileTest - не пройден");
-        assertEquals(task.getStartTime(), list.get(0).getStartTime(), "loadFromFileTest - не пройден");
-        assertEquals(task.getEndTime(), list.get(0).getEndTime(), "loadFromFileTest - не пройден");
-
-    }
-
-    @Disabled
-    @Test
-    void ManagerSaveExceptionTest() {
-        final ManagerSaveException ex = assertThrows(
-                ManagerSaveException.class,
-                () -> {
-                    FileBackedTasksManager f = new FileBackedTasksManager(new File("data\\csv.csv"));
-                    f.save();
-                });
-        assertEquals("", ex.getMessage());
+    public void shouldSaveAndLoadEmptyHistory() {
+        FileBackedTasksManager fileManager = new FileBackedTasksManager(Managers.getDefaultHistory(), file);
+        fileManager.save();
+        fileManager.loadFromFile();
+        assertEquals(Collections.EMPTY_LIST, manager.getHistory());
     }
 }

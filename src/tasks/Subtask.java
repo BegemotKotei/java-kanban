@@ -1,38 +1,52 @@
 package tasks;
 
-import managers.TaskType;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.Objects;
 
 public class Subtask extends Task {
+    private final int epicId;
 
-    private int idEpic;
-
-    public Subtask(int id, String name, String description, int idEpic, TaskType taskType, Status status, LocalDateTime startTime, long duration){
-        super(id, name, description, taskType, status, startTime, duration);
-        this.idEpic = idEpic;
+    public Subtask(String description, String name, Status status, int epicId) {
+        super(description, name, status);
+        this.epicId = epicId;
     }
 
-    public Subtask(String name, String description, int idEpic, TaskType taskType, LocalDateTime startTime, long duration) {
-        super(name, description, taskType, startTime, duration);
-        this.idEpic = idEpic;
+    public Subtask(
+            String description, String name, Status status, int epicId, Instant startTime, long duration) {
+        super(description, name, status, startTime, duration);
+        this.epicId = epicId;
     }
 
-    public Subtask(String name, String description, int idEpic, TaskType taskType) {
-        super(name, description, taskType);
-        this.idEpic = idEpic;
+    public int getEpicId() {
+        return epicId;
     }
 
-    public int getIdEpic() {
-        return idEpic;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Subtask subtask = (Subtask) o;
+        return epicId == subtask.epicId;
     }
 
-    public void setIdEpic(int idEpic) {
-        this.idEpic = idEpic;
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), epicId);
     }
 
     @Override
     public String toString() {
-        return super.toString() + "," + idEpic;
+        return "Subtask{" +
+                "epicId=" + getEpicId() +
+                ", description='" + getDescription() + '\'' +
+                ", id=" + getId() +
+                ", name='" + getName() + '\'' +
+                ", status=" + getStatus() + '\'' +
+                ", startTime='" + getStartTime().toEpochMilli() + '\'' +
+                ", endTime='" + getEndTime().toEpochMilli() + '\'' +
+                ", duration='" + getDuration() +
+                '}';
     }
 }

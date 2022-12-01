@@ -3,23 +3,28 @@ package managers;
 import tasks.Task;
 import tasks.Epic;
 import tasks.Subtask;
-import tasks.Status;
 
 import java.util.*;
 
 public interface TaskManager {
 
-    ArrayList<Task> getPrioritizedTasks();
+    List<Task> getPrioritizedTasks();
 
     // Получение списка задач.
-    ArrayList<Task> getTasks();
-    ArrayList<Epic> getEpics();
-    ArrayList<Subtask> getSubTasks();
+    List<Task> getTasks();
+    List<Epic> getEpics();
+    List<Subtask> getSubTasks();
+
+    //
+    List<Subtask> getAllSubTasksByEpicId(int id);
 
     // Удаление задач.
     void removeAllTasks();
     void removeAllEpics();
     void removeAllSubTasks();
+
+    // Удаление
+    void removeAllSubTasksByEpic(Epic epic);
 
     // Получение задач по id.
     Task getTasksById(int id);
@@ -29,28 +34,27 @@ public interface TaskManager {
     // Создание задачи
     Task createTask(Task task);
     Epic createEpic(Epic epic);
-    Subtask createSubTask(Subtask subTask, int idEpic);
+    Subtask createSubTask(Subtask subTask);
 
     // Обновление задачи.
-    void updateTask(Task task, Status status);
+    void updateTask(Task task);
     void updateEpic(Epic epic);
-    void updateSubTask(Subtask subTask, Status status, int idEpic);
+    void updateStatusEpic(Epic epic);
+    void updateSubTask(Subtask subTask);
 
     // Удаление задачи по id.
     void removeTaskById(int id);
     void removeEpicById(int id);
     void removeSubTaskById(int id);
 
-    // Получение списка сабтасков определённого эпика.
-    List<Subtask> getEpicSubtasksList(Epic epic);
-
-
     // История просмотра задач.
-    List<Task> history();
+    List<Task> getHistory();
 
-    // Поиск задачи по id;
-    Task findTask(Integer taskId);
+    //
+    void remove(int id);
 
-
-
+    //
+    void printTasks();
+    void printEpics();
+    void printSubtasks();
 }

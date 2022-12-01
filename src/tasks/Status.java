@@ -2,16 +2,20 @@ package tasks;
 
 
 public enum Status {
-    NEW("NEW"), IN_PROGRESS("IN_PROGRESS"), DONE("DONE");
+    NEW("new"), IN_PROGRESS("inProgress"), DONE("done");
+    private String translation;
 
-    final String name;
+    Status() {}
 
-    Status(String name) {
-        this.name = name;
+    Status(String translation) {
+        this.translation = translation;
     }
 
-    @Override
+    public String getTranslation() {
+        return translation;
+    }
+
     public String toString() {
-        return name;
+        return translation;
     }
 }
