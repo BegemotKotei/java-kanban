@@ -1,7 +1,12 @@
 package exception;
 
-public class ManagerLoadException extends Exception {
-    public  ManagerLoadException(String massage) {
-        super(massage);
+public class ManagerLoadException extends RuntimeException {
+    public ManagerLoadException(String message) {
+        super(message);
+    }
+
+    @Override
+    public String getMessage() {
+        return super.getMessage();
     }
 }

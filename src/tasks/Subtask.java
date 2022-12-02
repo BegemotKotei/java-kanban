@@ -1,25 +1,32 @@
 package tasks;
 
+import com.google.common.base.Objects;
+import tasks.Status;
+import tasks.TaskType;
 
-import java.time.Instant;
-import java.util.Objects;
+import java.time.LocalDateTime;
 
 public class Subtask extends Task {
-    private final int epicId;
 
-    public Subtask(String description, String name, Status status, int epicId) {
-        super(description, name, status);
-        this.epicId = epicId;
-    }
+    private final String epicId;
 
-    public Subtask(
-            String description, String name, Status status, int epicId, Instant startTime, long duration) {
-        super(description, name, status, startTime, duration);
-        this.epicId = epicId;
-    }
-
-    public int getEpicId() {
+    public String getEpicId() {
         return epicId;
+    }
+
+    public Subtask(String id, TaskType type, String name, String description, Status status, String epicId, LocalDateTime startDate, long duration) {
+        super(id, type, name, description, status, startDate, duration);
+        this.epicId = epicId;
+    }
+
+    public Subtask(TaskType type, String name, String description, Status status, LocalDateTime startDate, long duration, String epicId) {
+        super(type, name, description, status, startDate, duration);
+        this.epicId = epicId;
+    }
+
+    public Subtask(TaskType type, String name, String description, String epicId) {
+        super(type, name, description);
+        this.epicId = epicId;
     }
 
     @Override
@@ -28,25 +35,33 @@ public class Subtask extends Task {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Subtask subtask = (Subtask) o;
-        return epicId == subtask.epicId;
+        return Objects.equal(getEpicId(), subtask.getEpicId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), epicId);
+        return Objects.hashCode(super.hashCode(), getEpicId());
     }
 
     @Override
     public String toString() {
-        return "Subtask{" +
-                "epicId=" + getEpicId() +
-                ", description='" + getDescription() + '\'' +
-                ", id=" + getId() +
-                ", name='" + getName() + '\'' +
-                ", status=" + getStatus() + '\'' +
-                ", startTime='" + getStartTime().toEpochMilli() + '\'' +
-                ", endTime='" + getEndTime().toEpochMilli() + '\'' +
-                ", duration='" + getDuration() +
-                '}';
+        String stringStartDate;
+        String stringEndDate;
+        if (startDate == null) {
+            stringStartDate = null;
+            stringEndDate = null;
+        } else {
+            stringStartDate = startDate.toString();
+            stringEndDate = startDate.plusMinutes(duration).toString();
+        }
+        return "ID: " + id + " {" +
+                "Type: " + type + " | " +
+                "Name: " + name + " | " +
+                "Status: " + status + " | " +
+                "Description: " + description + " | " +
+                "Epic ID: " + epicId + " | " +
+                "Start Date: " + stringStartDate + " | " +
+                "Duration: " + duration + " | " +
+                "End date: " + stringEndDate + "}";
     }
 }

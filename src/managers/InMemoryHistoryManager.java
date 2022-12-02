@@ -1,125 +1,35 @@
 package managers;
+import managers.util.CustomLinkedList;
+
 import tasks.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
 
+
 public class InMemoryHistoryManager implements HistoryManager {
-    private static class CustomLinkedList {
-        private final Map<Integer, Node> table = new HashMap<>();
-        private Node head;
-        private Node tail;
+    private final CustomLinkedList<Task> historyList = new CustomLinkedList<>();
 
-        private void linkLast(Task task) {
-            Node element = new Node();
-            element.setTask(task);
-
-            if (table.containsKey(task.getId())) {
-                removeNode(table.get(task.getId()));
-            }
-
-            if (head == null) {
-                tail = element;
-                head = element;
-                element.setNext(null);
-                element.setPrev(null);
-            } else {
-                element.setPrev(tail);
-                element.setNext(null);
-                tail.setNext(element);
-                tail = element;
-            }
-
-            table.put(task.getId(), element);
-        }
-
-        private List<Task> getTasks() {
-            List<Task> result = new ArrayList<>();
-            Node element = head;
-            while (element != null) {
-                result.add(element.getTask());
-                element = element.getNext();
-            }
-            return result;
-        }
-
-        private void removeNode(Node node) {
-            if (node != null) {
-                table.remove(node.getTask().getId());
-                Node prev = node.getPrev();
-                Node next = node.getNext();
-
-                if (head == node) {
-                    head = node.getNext();
-                }
-                if (tail == node) {
-                    tail = node.getPrev();
-                }
-
-                if (prev != null) {
-                    prev.setNext(next);
-                }
-
-                if (next != null) {
-                    next.setPrev(prev);
-                }
-            }
-        }
-
-        private Node getNode(int id) {
-            return table.get(id);
-        }
-    }
-
-    private final CustomLinkedList list = new CustomLinkedList();
-
-    // Добавление нового просмотра задачи в историю
-    @Override
-    public void add(Task task) {
-        list.linkLast(task);
-    }
-
-    // Удаление просмотра из истории
-    @Override
-    public void remove(int id) {
-        list.removeNode(list.getNode(id));
-    }
-
-    // Получение истории просмотров
+    // Реализация метода вывода истории задач
     @Override
     public List<Task> getHistory() {
-        return list.getTasks();
+        return historyList.getTasks();
+    }
+
+    // Реализация метода добавления задачи в историю
+    @Override
+    public void add(Task task) {
+        historyList.linkFirst(task);
+    }
+
+    @Override
+    public void addLast(Task task) {
+        historyList.linkLast(task);
+    }
+
+    // Реализация метода удаления задач из истории (список для ускорения методов удаления всех задач)
+    @Override
+    public void remove(List<String> idList) {
+        idList.forEach(historyList::removeTask);
     }
 }
 
-class Node {
-    private Task task;
-    private Node prev;
-    private Node next;
-
-    public Node getNext() {
-        return next;
-    }
-
-    public Node getPrev() {
-        return prev;
-    }
-
-    public Task getTask() {
-        return task;
-    }
-
-    public void setNext(Node next) {
-        this.next = next;
-    }
-
-    public void setPrev(Node prev) {
-        this.prev = prev;
-    }
-
-    public void setTask(Task task) {
-        this.task = task;
-    }
-}

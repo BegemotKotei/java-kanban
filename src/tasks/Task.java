@@ -1,71 +1,63 @@
 package tasks;
 
-import java.time.Duration;
-import java.time.Instant;
+import com.google.common.base.Objects;
+import tasks.Status;
+import tasks.TaskType;
+
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
 public class Task {
-    private String description;
-    private int id;
-    private String name;
-    private Status status;
-    private transient Instant startTime;
-    private long duration;
 
-    public Task(String description, String name, Status status) {
-        this.description = description;
-        this.name = name;
-        this.status = status;
-    }
+    protected String id;
+    protected TaskType type;
+    protected String name;
+    protected String description;
+    protected Status status;
+    protected LocalDateTime startDate = null;
+    protected long duration;
 
-    public Task(String description, String name, Status status, Instant startTime, long duration) {
-        this.description = description;
+    public Task(String id, TaskType type, String name, String description, Status status, LocalDateTime startDate, long duration) {
+        this.id = id;
+        this.type = type;
         this.name = name;
+        this.description = description;
         this.status = status;
-        this.startTime = startTime;
+        this.startDate = startDate;
         this.duration = duration;
     }
 
-    public String getDescription() {
-        return description;
+    public Task(TaskType type, String name, String description, Status status, LocalDateTime startDate, long duration) {
+        this.type = type;
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.startDate = startDate;
+        this.duration = duration;
     }
 
-    public void setDescription(String description) {
+    public Task(String id, TaskType type, String name, String description) {
+        this.id = id;
+        this.type = type;
+        this.name = name;
         this.description = description;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    public Task(TaskType type, String name, String description) {
+        this.type = type;
         this.name = name;
+        this.description = description;
     }
 
-    public Status getStatus() {
-        return status;
+    public LocalDateTime getStartDate() {
+        return startDate;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public LocalDateTime getEndDate() {
+        return startDate.plusMinutes(duration);
     }
 
-    public Instant getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Instant startTime) {
-        this.startTime = startTime;
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
     }
 
     public long getDuration() {
@@ -76,23 +68,28 @@ public class Task {
         this.duration = duration;
     }
 
-    public Instant getEndTime() {
-        long SECONDS_IN_MINUTE = 60L;
-        return startTime.plusSeconds(duration * SECONDS_IN_MINUTE);
+    public String getId() {
+        return id;
     }
 
-    @Override
-    public String toString() {
-        return "Task{" +
-                "description='" + description + '\'' +
-                ", id=" + id +
-                ", name='" + name + '\'' +
-                ", status=" + status + '\'' +
-                ", startTime='" + startTime.toEpochMilli() + '\'' +
-                ", endTime='" + getEndTime().toEpochMilli() + '\'' +
-                ", duration='" + duration +
-                '}';
+    public TaskType getType() {
+        return type;
+    }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
@@ -100,13 +97,56 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id && duration == task.duration && Objects.equals(description, task.description)
-                && Objects.equals(name, task.name) && status == task.status
-                && Objects.equals(startTime, task.startTime);
+        return getDuration() == task.getDuration() &&
+                Objects.equal(getId(), task.getId()) &&
+                getType() == task.getType() &&
+                Objects.equal(getName(), task.getName()) &&
+                Objects.equal(getDescription(), task.getDescription()) &&
+                getStatus() == task.getStatus() &&
+                Objects.equal(getStartDate(), task.getStartDate());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(description, id, name, status, startTime, duration);
+        return Objects.hashCode(getId(),
+                getType(),
+                getName(),
+                getDescription(),
+                getStatus(),
+                getStartDate(),
+                getDuration());
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        String stringStartDate;
+        String stringEndDate;
+        if (startDate == null) {
+            stringStartDate = null;
+            stringEndDate = null;
+        } else {
+            stringStartDate = startDate.toString();
+            stringEndDate = startDate.plusMinutes(duration).toString();
+        }
+        return "ID: " + id + " {" +
+                "Type: " + type + " | " +
+                "Name: " + name + " | " +
+                "Status: " + status + " | " +
+                "Description: " + description + " | " +
+                "Start Date: " + stringStartDate + " | " +
+                "Duration: " + duration + " | " +
+                "End date: " + stringEndDate + "}";
     }
 }

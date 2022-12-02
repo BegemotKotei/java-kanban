@@ -1,18 +1,16 @@
 package managers;
 
-import managers.http.HttpTaskManager;
-import managers.http.server.KVServer;
-
-import java.io.IOException;
+import static managers.util.Constants.KV_SERVER_URL;
 
 public final class Managers {
 
-    public static TaskManager getInMemoryTaskManager(HistoryManager historyManager) {
-        return new InMemoryTasksManager(historyManager);
+    // Приватный конструктор для защиты от создания экземпляров класса
+    private Managers() {
     }
 
-    public static HttpTaskManager getDefault(HistoryManager historyManager) throws IOException, InterruptedException {
-        return new HttpTaskManager (historyManager, "http://localhost:" + KVServer.PORT);
+    // Методы выбора менеджеров по умолчанию
+    public static TaskManager getDefault() {
+        return new HTTPTaskManager(KV_SERVER_URL);
     }
 
     public static HistoryManager getDefaultHistory() {
