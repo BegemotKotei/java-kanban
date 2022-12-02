@@ -1,0 +1,4 @@
+id,type,name,status,description,epic,startDate,duration
+4b21e08e-f9eb-436a-9942-8d52cc8acddf,TASK,Task-1,NEW,New Task-1,null,2022-01-01T00:00,1440
+37fd76c3-cb97-4b29-b6f3-144491d39c82,EPIC,Epic-1,NEW,Test Epic,null,null,0
+

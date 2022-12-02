@@ -1,7 +1,7 @@
 package exception;
 
-public class ManagerLoadException extends RuntimeException {
-    public ManagerLoadException(String message) {
+public class LoadStateException extends RuntimeException {
+    public LoadStateException(String message) {
         super(message);
     }
 

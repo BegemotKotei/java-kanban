@@ -25,27 +25,21 @@ public interface TaskManager {
     void deleteEpic(String id);
     void deleteSubTask(String subtaskID);
 
-
     //Методы удаления всех tasks.Task && tasks.Epic && tasks.Subtask
     void deleteAllTasks();
     void deleteAllEpics();
 
     void deleteAllSubTasks();
 
-
     // Методы запроса конкретной tasks.Task && tasks.Epic && tasks.Subtask
     Task getTaskById(String id);
     Epic getEpicById(String id);
     Subtask getSubtaskById(String id);
 
-
     // Методы запроса списка tasks.Task && tasks.Epic && tasks.SubtaskМетод удаления всех
     LinkedHashMap<String, Task> listTasks();
     LinkedHashMap<String, Epic> listEpics();
     LinkedHashMap<String, Subtask> listAllSubtasks();
-
-
-
 
     // Метод запроса списка tasks.Subtask конкретного tasks.Epic
     LinkedHashMap<String, Subtask> listEpicSubtasks(String epicID);
